@@ -46,11 +46,17 @@
   <img src="https://capsule-render.vercel.app/api?type=soft&color=auto&height=80&section=footer&text=Team%20Name&fontSize=40&fontColor=ffffff&animation=fadeIn" />
 </p>
 
-| <img src="[팀원1 이미지 URL]" width="150"><br>[이름1] | <img src="[팀원2 이미지 URL]" width="150"><br>[이름2] | <img src="[팀원3 이미지 URL]" width="150"><br>[이름3] | <img src="[팀원4 이미지 URL]" width="150"><br>[이름4] | <img src="[팀원5 이미지 URL]" width="150"><br>[이름5] | <img src="[팀원6 이미지 URL]" width="150"><br>[이름6] |
-| :---: | :---: | :---: | :---: |
-| **팀장 / [담당역할]** | **팀원 / [담당역할]** | **팀원 / [담당역할]** | **팀원 / [담당역할]** | | **팀원 / [담당역할]** | | **팀원 / [담당역할]** |
-| <a href="[깃허브 주소]"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> | <a href="[깃허브 주소]"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> | <a href="[깃허브 주소]"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> | <a href="[깃허브 주소]"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> |
+| <img src="[팀원1 이미지 URL]" width="150"><br>**이다윗** | <img src="[팀원2 이미지 URL]" width="150"><br>**김다솜** | <img src="[팀원3 이미지 URL]" width="150"><br>**이애은** |
+| :---: | :---: | :---: |
+| **팀장 / [담당역할]** | **팀원 / [담당역할]** | **팀원 / [담당역할]** |
+| <a href="[깃허브 주소]"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> | <a href="[깃허브 주소]"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> | <a href="[깃허브 주소]"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> |
 
+<br>
+
+| <img src="[팀원4 이미지 URL]" width="150"><br>**윤정윤** | <img src="[팀원5 이미지 URL]" width="150"><br>**이용호** | <img src="[팀원6 이미지 URL]" width="150"><br>**박재하** |
+| :---: | :---: | :---: |
+| **팀원 / [담당역할]** | **팀원 / [담당역할]** | **팀원 / 스터디 관리 및 리더 기능** |
+| <a href="[깃허브 주소]"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> | <a href="[깃허브 주소]"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> | <a href="https://github.com/horolo1234"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> |
 ---
 
 ## 💡 **배경**
