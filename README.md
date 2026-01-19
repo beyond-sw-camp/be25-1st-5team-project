@@ -1,14 +1,14 @@
 # be25-1st-5team-project
 <p align="center">
-  <img src="[프로젝트 로고 이미지 URL]" width="200" alt="Project Logo" />
+  <img src="[<img width="2816" height="1536" alt="핏터디(로고)" src="https://github.com/user-attachments/assets/76f170f9-df4a-4538-8edb-35e952e2dea2" />]" width="200" alt="Project Logo" />
 </p>
 
-<h1 align="center">📛 <strong>[프로젝트 이름]</strong></h1>
-<p align="center"><em>[프로젝트 슬로건 또는 한 줄 요약]</em></p>
+<h1 align="center">📛 <strong>[FIT-STUDY]</strong></h1>
+<p align="center"><em>나에게 딱 맞는(Fit) 스터디</em></p>
 
 <p align="center">
-  [프로젝트에 대한 간략한 설명 문구 1] <br />
-  <strong>[강조하고 싶은 핵심 가치나 문구]</strong>
+  막막한 스터디 찾기, 이제 핏터디가 당신에게 가장 잘 맞는 곳을 연결해 드립니다. <br />
+  <strong>당신의 열정에 딱 맞는 자리를 찾아드립니다.</strong>
 </p>
 
 ---
