@@ -1596,7 +1596,7 @@ ORDER BY r.created_at DESC;
 </details>
 
 <details> 
-<summary>1-2. 상태별 필터링 조회</summary>
+<summary>6-2. 상태별 필터링 조회</summary>
 <br>
 
 ```sql
@@ -1617,7 +1617,7 @@ ORDER BY r.created_at DESC;
 </details>
 
 <details> 
-<summary>1-3. 신고 처리 상태 변경</summary>
+<summary>6-3. 신고 처리 상태 변경</summary>
 <br>
 
 ```sql
@@ -1630,16 +1630,10 @@ WHERE report_id = 1; -- 예시 ID
 ![신고사항 조회](./이다윗/ADMIN_001/1-3%20신고사항%20처리상태%20업데이트.png) 
 </details>
 
-</details>
-
-<details>
-<summary>2. 신고 사항 처리</summary>
-<br>
-
 <details> 
-<summary>2-1. [프로시저] 신고 처리</summary>
+<summary>6-4. [프로시저] 신고 처리</summary>
 <br>
->
+
 ```sql
 -- ADMIN_002: 신고 사항 처리
 
@@ -1697,7 +1691,7 @@ DELIMITER ;
 </details>
 
 <details> 
-<summary>2-2. [트리거] 공고 취소 시 멤버 자동 탈퇴</summary>
+<summary>6-5. [트리거] 공고 취소 시 멤버 자동 탈퇴</summary>
 <br>
 
 ```sql
@@ -1729,14 +1723,8 @@ DELIMITER ;
 ![신고 사항 처리](./이다윗/ADMIN_002/2-2.%20스터디%20포스트_이후.png)
 </details>
 
-</details>
-
 <details>
-<summary>3. 유저 제재</summary>
-<br>
-  
-<details>
-<summary>3-1. [트리거] 신고 승인 시 패널티 증가</summary>
+<summary>6-6. [트리거] 신고 승인 시 패널티 증가</summary>
 <br>
 
 ```sql	
@@ -1764,7 +1752,7 @@ DELIMITER ;
 </details>
 
 <details> 
-<summary>3-2. [트리거] 3회 누적 시 강제 탈퇴 및 블랙리스트</summary>
+<summary>6-7. [트리거] 3회 누적 시 강제 탈퇴 및 블랙리스트</summary>
 <br>
 
 ```sql
@@ -1797,8 +1785,8 @@ DELIMITER ;
 ![신고 사항 처리](./이다윗/ADMIN_003/5-2.%20블랙리스트_이후.png) 
 </details>
 
-<details
-<summary>3-3. [트리거] 블랙리스트에 등록된 이메일로 가입 시도 시 차단</summary>
+<details>
+<summary>6-8. [트리거] 블랙리스트에 등록된 이메일로 가입 시도 시 차단</summary>
 <br>
 
 ```sql
@@ -1818,10 +1806,8 @@ END //
 ![신고 사항 처리](./이다윗/ADMIN_003/6.%20차단된%20블랙리스트.png) 
 </details>
 
-</details>
-
 <details>
-<summary>4. 시스템 통계 대시보드 (신규 공고 수, 신규 참여 수)</summary>
+<summary>6-9. 시스템 통계 대시보드 (신규 공고 수, 신규 참여 수)</summary>
 <br>
 	
 ```sql
