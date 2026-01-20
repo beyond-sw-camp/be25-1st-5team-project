@@ -34,8 +34,8 @@
 - [🧪 샘플 데이터 (DML)](#-샘플-데이터-dml)
 - [🧠 쿼리 실행 결과 (Code)](#-구현-결과-code)
 - [🔧 수정 및 향후 개선사항](#-수정-및-향후-개선사항)
-- [💻테스트)
-- [🎓 회고록]
+- [💻테스트](#테스트)
+- [🎓 회고록](#회고록)
 
 ---
 
@@ -127,7 +127,7 @@
 
 <img src="./image/WBS.jpg" width="1000" alt="Project Logo" />
 
-- [📂 일정표 자세히 보기 (링크)](https://docs.google.com/spreadsheets/d/1rJIUxV4W8rlf0Q7GiBcsVRYuY1JH6BskKCvWa9DXjHo/edit?gid=0#gid=0)
+- [📂 일정표 자세히 보기 (링크)](https://docs.google.com/spreadsheets/d/1Q1jzi_nl8RFUq_z4TsBLuJ0TAfOchFgY/edit?gid=153074575#gid=153074575)
 
 ---
 
@@ -784,9 +784,10 @@ VALUES
 ```sql
 
 ```
-
+평가 전
 ![image](https://github.com/user-attachments/assets/52e81b9c-1b90-476a-8cc7-80646a1d90a7)
-
+<br>
+평가 후 신뢰 점수 변동
 ![image](https://github.com/user-attachments/assets/6cdbac9e-3874-4734-bd78-97c28114ce1a)
 
 
@@ -829,6 +830,14 @@ END$$
 
 DELIMITER ;
 ```
+
+- 신뢰 점수 반영 전
+  
+![image](김다솜/Peer_review_001/Reliability.png)
+<br>
+- 신뢰 점수 반영 후 결과
+  
+![image](김다솜/Peer_review_001/Reliability_2.png)
 </details> 
 
 
@@ -854,6 +863,7 @@ BEGIN
 END$$
 
 ```
+![image](김다솜/Peer_review_001/Error.png)
 </details>
 
 <details>
@@ -864,6 +874,8 @@ SELECT COUNT(*) AS count_member
 FROM chat_read_status
 WHERE message_id = 1 AND is_read = 1;
 ```
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EA%B9%80%EB%8B%A4%EC%86%9C/COMM_001/Read_People.png)
+
 </details>
 <details>
 <summary> 2-6. 채팅 전체 조회 </summary>
@@ -900,6 +912,7 @@ END$$
 DELIMITER ;
 
 ```
+![image](김다솜/COMM_001/Read_Chat_Result.png)
 </details>
 
 ### 👤 3. 이애은
@@ -1471,20 +1484,7 @@ CALL deleteBookmarkProc(1, 5);
 
 </details>
 
-### 👤 6. 이다윗
-<details>
-<summary>1. 스터디 모집글 작성</summary>
 
-```sql
-
-```
-
-![image](https://github.com/user-attachments/assets/52e81b9c-1b90-476a-8cc7-80646a1d90a7)
-
-![image](https://github.com/user-attachments/assets/6cdbac9e-3874-4734-bd78-97c28114ce1a)
-
-
-</details>
 
 ### 📌 아키텍처
 <img src="./image/Web_App_Reference_Architecture_1.webp" width="1000" alt="ERD image" />
