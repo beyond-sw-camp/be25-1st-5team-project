@@ -1,4 +1,3 @@
-# be25-1st-Linker-FitStudy
 <p align="center">
   <img src="./image/logo.png" width="400" alt="Project Logo" />
 </p>
@@ -33,7 +32,7 @@
   - [📌 아키텍처](#아키텍처)
   - [📌 Schema DDL](#schema-ddl)
 - [🧪 샘플 데이터 (DML)](#-샘플-데이터-dml)
-- [🧠 쿼리 실행 결과 (Code & Procedure)](#-구현-결과-code--procedure)
+- [🧠 쿼리 실행 결과 (Code)](#-구현-결과-code)
 - [🔧 수정 및 향후 개선사항](#-수정-및-향후-개선사항)
 - [💻테스트)
 - [🎓 회고록]
@@ -46,10 +45,10 @@
   <img src="https://capsule-render.vercel.app/api?type=soft&color=auto&height=80&section=footer&text=Team%20Linker&fontSize=40&fontColor=ffffff&animation=fadeIn" />
 </p>
 
-| <img src="./image/zootopia_nibbles.png" width="150"><br>**이다윗** | <img src="image/member_kimdasom.jpg" width="150"><br>**김다솜** | <img src="[팀원3 이미지 URL]" width="150"><br>**이애은** |
+| <img src="./image/zootopia_nibbles.png" width="150"><br>**이다윗** | <img src="image/member_kimdasom.jpg" width="150"><br>**김다솜** | <img src="image/member_leeaeeun.png" width="150"><br>**이애은** |
 | :---: | :---: | :---: |
 | **팀장 / 운영 및 제재 관리** | **팀원 / 상호작용 및 커뮤니케이션** | **팀원 / 스터디 탐색 및 조회** |
-| <a href="https://github.com/Dawit-lee"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> | <a href="https://github.com/Myang09"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> | <a href="[깃허브 주소]"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> |
+| <a href="https://github.com/Dawit-lee"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> | <a href="https://github.com/Myang09"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> | <a href="https://github.com/nueeaeel"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> |
 
 <br>
 
@@ -169,9 +168,6 @@
 
 ### 📋 테이블 명세
 - [📂 테이블 명세서 링크](https://docs.google.com/spreadsheets/d/1Q1jzi_nl8RFUq_z4TsBLuJ0TAfOchFgY/edit?gid=724605003#gid=724605003)
-
-### 📌 아키텍처
-<img src="./image/Web_App_Reference_Architecture_1.webp" width="1000" alt="ERD image" />
 
 ### 📌 Schema DDL
 <details>
@@ -780,8 +776,8 @@ VALUES
 
 ---
 
-## 🧠 테스트 실행 결과
-### 👤 1. 이다윗
+## 🧠 쿼리 실행 결과 (Code)
+### 👤 1. 이용호
 <details>
 <summary>1-1. 회원가입</summary>
 
@@ -921,7 +917,413 @@ DELIMITER ;
 
 </details>
 
-### 👤 4. 윤정윤
+### 👑 4. 스터디 관리 및 리더 기능 (Management) 
+<details>
+<summary>4-1. 스터디 모집글 작성</summary>
+
+```sql
+-- ===================== LEADER_001 =====================
+-- 모집상태는 RECRUITING이 기본값
+-- 팀장ID는 스터디 공고 만든 유저의 ID / 모집공고를 올리면 자동으로 리더 ID로 승격
+
+DELIMITER $$
+CREATE OR replace TRIGGER `trg_auto_leader_if_make_post`
+AFTER INSERT ON `study_post`
+FOR EACH ROW
+BEGIN
+    -- 공고가 생성되면, 작성자(leader_id)를 멤버 테이블에 자동 추가
+    INSERT INTO study_member (post_id, user_id, role, status, joined_at)
+    VALUES (NEW.post_id, NEW.leader_id, 'LEADER', 'ACCEPTED', NOW());
+END$$
+DELIMITER ;
+
+INSERT INTO study_post 
+(leader_id, title, content, max_participants, way, region_id, min_reliability, post_status, start_at, predict_finish_at) 
+VALUES 
+(
+    5, -- 팀장ID
+    '제목을 입력하세요... title', -- 제목
+    '상세내용 입력하세요... ', -- 상세 내용
+    4, -- 모집인원
+    'ONLINE', -- 진행 방식 (ONLINE/OFFLINE/BOTH)
+    NULL, -- 온라인이라 지역 없음
+    4, -- 최소신뢰지수제한 (4점 이상)
+    'RECRUITING', -- 모집 상태
+    '2026-03-01 00:00:00', -- 스터디 시작일시
+    '2026-06-01 00:00:00'  -- 예상 종료일시
+);
+```
+- 공고 생성
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_001/%EA%B3%B5%EA%B3%A0%20%EC%83%9D%EC%84%B1%20%ED%99%95%EC%9D%B8.png?raw=true)
+
+- 공고 생성시 리더 아이디로 자동 승격
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_001/%EA%B3%B5%EA%B3%A0%20%EC%83%9D%EC%84%B1%EC%8B%9C%20%EB%A6%AC%EB%8D%94%20%EC%95%84%EC%9D%B4%EB%94%94%EB%A1%9C%20%EC%9E%90%EB%8F%99%20%EC%8A%B9%EA%B2%A9%20%ED%99%95%EC%9D%B8.png?raw=true)
+
+
+</details>
+
+<details>
+<summary>4-2. 스터디 모집글 삭제</summary>
+
+```sql
+-- ===================== LEADER_002 =====================
+-- 팀장이 공고를 삭제하기 위해서는 참조하는 다른 자식 테이블을 먼저 삭제해야함
+-- 채팅 읽음상태, 채팅메세지 삭제, 공고 태그삭제, 북마크 삭제, 동료평가 삭제, 신고내역 삭제, 스터디 멤버 삭제 순으로 해야함
+-- 테이블을 ALTER CASCADE 하는 것 보단 트리거를 통해서 삭제
+DROP TRIGGER IF EXISTS `trg_cleanup_on_post_cancel`;
+DELIMITER $$
+
+CREATE TRIGGER `trg_cleanup_on_post_cancel`
+AFTER UPDATE ON `study_post`
+FOR EACH ROW
+BEGIN
+    -- 공고 상태가 'CANCELED'로 변경된 경우에만 로직 수행
+    IF NEW.post_status = 'CANCELED' AND OLD.post_status != 'CANCELED' THEN
+    
+        -- (1) 북마크: 삭제 처리
+        DELETE FROM bookmark 
+        WHERE post_id = NEW.post_id;
+
+        -- (2) 스터디 멤버: 상태를 'CANCELED'로 변경
+        -- 참여 중('ACCEPTED')이거나 대기 중('PENDING')인 멤버만 처리
+        UPDATE study_member
+        SET status = 'CANCELED',
+            status_updated_at = NOW()
+        WHERE post_id = NEW.post_id
+          AND status IN ('PENDING', 'ACCEPTED');
+          
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- 트리거가 감지하고 북마크 삭제 + 멤버 상태 변경을 수행함
+UPDATE study_post 
+SET post_status = 'CANCELED' 
+WHERE post_id = 1;
+```
+- 공고 삭제 전 스터디 멤버
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_002/%EC%82%AD%EC%A0%9C%20%EC%A0%84%20%EC%8A%A4%ED%84%B0%EB%94%94%20%EB%A9%A4%EB%B2%84.png?raw=true)
+
+- 공고 삭제 후 스터디 멤버 CANCELED 상태 
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_002/%EA%B3%B5%EA%B3%A0%20%EC%82%AD%EC%A0%9C%20%ED%9B%84%20%EC%8A%A4%ED%84%B0%EB%94%94%20%EB%A9%A4%EB%B2%84%20%EC%83%81%ED%83%9C%20canceled.png?raw=true)
+
+- 스터디 포스트 CANCELED 변경
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_002/%EC%8A%A4%ED%84%B0%EB%94%94%20%ED%8F%AC%EC%8A%A4%ED%8A%B8%20canceled%20%EB%B3%80%EA%B2%BD.png?raw=true)
+
+
+</details>
+
+<details>
+<summary>4-3. 게시글 수정</summary>
+
+```sql
+-- ===================== LEADER_003 =====================
+-- 제목이나 내용을 수정. 반드시 leader_id만 수정가능해야함
+DELIMITER $$
+CREATE PROCEDURE `update_study_post`(
+    IN p_post_id      INT,
+    IN p_requester_id INT,
+    IN p_title        VARCHAR(255),
+    IN p_content      TEXT,
+    IN p_way          VARCHAR(10)
+)
+BEGIN
+    -- 1. 업데이트 수행 (권한 체크 포함)
+    UPDATE study_post
+    SET title      = p_title,
+        content    = p_content,
+        way        = p_way,
+        updated_at = NOW()
+    WHERE post_id = p_post_id 
+      AND leader_id = p_requester_id;
+    
+    -- 2. 결과 조회
+    SELECT sp.leader_id,
+           sm.user_id,
+           sp.title,
+           sp.content,
+           sp.way
+    FROM study_member sm
+    JOIN study_post sp ON sm.post_id = sp.post_id
+    WHERE sp.post_id = p_post_id; 
+
+END$$ 
+
+DELIMITER ;
+
+-- 멤버가 수정하는 경우 -> 수정 안됨
+CALL update_study_post(2, 5, '제목 입력 ...', '상세 내용 입력 ...', 'ONLINE');
+
+-- 리더가 수정하는 경우 -> 수정 됨
+CALL update_study_post(2, 2, '제목 입력 ...', '상세 내용 입력 ...', 'ONLINE');
+```
+- 스터디 공고 멤버는 수정 못함
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_003/%EC%8A%A4%ED%84%B0%EB%94%94%20%EA%B3%B5%EA%B3%A0%20%EB%A9%A4%EB%B2%84%EB%8A%94%20%EC%88%98%EC%A0%95%20%EB%AA%BB%ED%95%A8.png?raw=true)
+
+-스터디 공고를 리더는 수정 가능
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_003/%EC%8A%A4%ED%84%B0%EB%94%94%20%EA%B3%B5%EA%B3%A0%20%EB%A6%AC%EB%8D%94%EB%8A%94%20%EC%88%98%EC%A0%95%20%EA%B0%80%EB%8A%A5.png?raw=true)
+
+
+</details>
+
+<details>
+<summary>4-4 팀원 내보내기</summary>
+
+```sql
+-- ===================== LEADER_004 =====================
+-- 강퇴시 자동으로 리더 명의로 1점 부여
+-- 상태가 KICKECD 일때만 작동
+-- 이미 평가가 존재할 경우 IGNORE로 중복방지
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `trg_auto_review_if_kicked`
+AFTER UPDATE ON study_member
+FOR EACH ROW
+BEGIN
+    DECLARE post_leader_id INT;
+    IF NEW.status = 'KICKED' AND OLD.status != 'KICKED' THEN
+        -- 1. 해당 스터디의 팀장 ID 찾기 (평가자 = 팀장)
+        SELECT leader_id INTO post_leader_id
+        FROM study_post
+        WHERE post_id = NEW.post_id;
+
+        -- 2. 팀장 이름으로 1점 자동 평가(에러 방지를 위해 IGNORE)
+        INSERT IGNORE INTO peer_review 
+        (post_id, reviewer_id, reviewee_id, contribution_score, communication_score, time_compliance_score, diligence_score)
+        VALUES 
+        (
+            NEW.post_id,  -- 공고 ID
+            post_leader_id,  -- 평가자 (팀장)
+            NEW.user_id,  -- 피평가자 (강퇴된 멤버)
+            1, 1, 1, 1    -- 점수 (전부 1점)
+        );
+
+        -- 강퇴된 유저의 penalty_count 1 증가
+        UPDATE user
+        SET penalty_count = IFNULL(penalty_count, 0) + 1
+        WHERE user_id = NEW.user_id;
+
+    END IF;
+END$$
+DELIMITER ;
+```
+- 스터디 공고에 멤버확인
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_004/%EC%8A%A4%ED%84%B0%EB%94%94%20%EA%B3%B5%EA%B3%A0%EC%97%90%20%EB%A9%A4%EB%B2%84%20%EC%83%81%ED%83%9C%20%ED%99%95%EC%9D%B8.png?raw=true)
+
+- 강퇴 당한후 KICKED로 상태 변경 및 강퇴 사유 입력
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_004/%EA%B0%95%ED%87%B4%20%EB%8B%B9%ED%95%9C%ED%9B%84%20KICKED%EB%A1%9C%20%EC%83%81%ED%83%9C%20%EB%B3%80%EA%B2%BD%20%EB%B0%8F%20%EA%B0%95%ED%87%B4%20%EC%82%AC%EC%9C%A0%20%EC%9E%85%EB%A0%A5%EC%99%84%EB%A3%8C.png?raw=true)
+
+- 스터디에서 강퇴당하면  팀장ID로 입력 모든 점수 1점으로 입력
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_004/%EC%8A%A4%ED%84%B0%EB%94%94%EC%97%90%EC%84%9C%20%EA%B0%95%ED%87%B4%EB%8B%B9%ED%95%98%EB%A9%B4%20%20%ED%8C%80%EC%9E%A5ID%EB%A1%9C%20%EC%9E%85%EB%A0%A5%20%EB%AA%A8%EB%93%A0%20%EC%A0%90%EC%88%98%201%EC%A0%90%20%EC%9E%85%EB%A0%A5.png?raw=true)
+
+</details>
+
+<details>
+<summary>4-5, 4-6. 참여 요청 관리 (승낙/거절)</summary>
+
+```sql
+-- ===================== LEADER_005, LEADER_006 =====================
+-- pending인 사람들 리더가 accept나 reject로 바꿈
+DELIMITER $$
+CREATE PROCEDURE `update_member_status`(
+    IN p_post_id      INT,          -- 스터디 공고 ID
+    IN p_requester_id INT,          -- 요청자 ID (리더인지 검증할 ID)
+    IN p_target_id    INT,          -- 상태를 변경할 대상 회원 ID
+    IN p_new_status   VARCHAR(20)   -- 변경할 상태 ('REJECTED', 'ACCEPTED' 등)
+)
+BEGIN
+    -- 1. 업데이트 수행 (리더 권한 체크 포함)
+    UPDATE study_member sm
+    JOIN study_post sp ON sm.post_id = sp.post_id
+    SET sm.status = p_new_status,
+        sm.status_updated_at = NOW()
+    WHERE sm.post_id = p_post_id
+      AND sm.user_id = p_target_id   -- 변경 대상
+      AND sp.leader_id = p_requester_id; -- 요청자가 리더여야만 실행됨
+
+    -- 2. 결과 반환
+    SELECT post_id, 
+		 user_id, 
+		 `role`, 
+		 `status`,
+		 status_updated_at
+	 FROM study_member
+	 WHERE post_id = p_post_id;
+END$$
+DELIMITER ;
+
+-- 리더5가 유저2를 ACCEPTED함 성공
+CALL sp_update_member_status(4, 5, 2, 'ACCEPTED');
+
+-- 멤버3이 유저2를 ACCEPTED함 실패
+CALL sp_update_member_status(4, 3, 2, 'ACCEPTED');
+
+-- 리더 3이 멤버 6을 rejected함 성공
+CALL sp_update_member_status(2, 3, 6, 'REJECTED');
+
+-- 멤버 5가 유저 6을 rejeced함 실패 
+CALL sp_update_member_status(2, 5, 6, 'REJECTED');
+```
+- 멤버면 ACCEPTED로 변경 불가능함
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_005/%EB%A9%A4%EB%B2%84%EB%A9%B4%20ACCEPTED%20%EB%A1%9C%20%EB%AA%BB%EB%B0%94%EA%BF%88.png?raw=true)
+
+- 리더면 ACCEPTED로 변경 가능함
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_005/%EB%A6%AC%EB%8D%94%EB%A9%B4%20ACCEPTED%20%EB%B3%80%EA%B2%BD%20%EA%B0%80%EB%8A%A5.png?raw=true)
+
+- 멤버면 REJECTED로 변경 불가능
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_006/%EB%A6%AC%EB%8D%94%20%EC%95%84%EB%8B%88%EB%9D%BC%EC%84%9C%20%EC%83%81%ED%83%9C%EC%97%85%EB%8E%83%20%EC%95%88%EB%90%A8.png?raw=true)
+
+- 리더면 REJECTED로 변경 가능함
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_006/%EB%A6%AC%EB%8D%94%EB%A1%9C%20%EB%B0%94%EA%BE%B8%EB%A9%B4%20%EC%83%81%ED%83%9C%EC%97%85%EB%8E%83%EB%90%A8.png?raw=true)
+
+</details>
+
+<details>
+<summary>4-7. 팀장 위임</summary>
+
+```sql
+-- ===================== LEADER_007 =====================
+-- 팀장이 공고가 시작 된 후 나가는 경우
+-- 점수가 높은사람 순, 동률일 경우 먼저 들어온 순 으로 방장위임됨
+-- 혹은 팀장이 팀원을 차기 팀장으로 지목 가능
+
+DELIMITER $$
+CREATE PROCEDURE `change_withdraw_leader`(
+    IN p_post_id INT,        -- 공고 ID
+    IN withdraw_leader_id INT, -- 탈퇴하는 팀장 ID
+    IN next_leader_id INT  -- 후계자 ID (없으면 NULL)
+)
+BEGIN
+    DECLARE is_leader INT;
+    DECLARE final_leader_id INT;
+
+    -- 1. 탈퇴하려는 사람이 팀장인지 확인
+    SELECT COUNT(*) INTO is_leader
+    FROM study_member
+    WHERE post_id = p_post_id 
+      AND user_id = withdraw_leader_id 
+      AND role = 'LEADER';
+
+    -- 2. 리더 본인 탈퇴 처리(멤버로 강등된 후 WITHDRAWN로 상태변경)
+    UPDATE study_member 
+    SET status = 'WITHDRAWN', status_updated_at = NOW(), role = 'MEMBER'
+    WHERE post_id = p_post_id AND user_id = withdraw_leader_id;
+
+    -- 3. 팀장이 나가는 경우에만 위임 로직 실행
+    IF is_leader > 0 THEN
+        -- 3-1. 사용자가 후계자를 지목한 경우 3-1-1, 아닌 경우 3-1-2
+        IF next_leader_id IS NOT NULL THEN
+            -- 3-1-1. 수동 위임: 입력받은 사람(next_leader_id)을 선택
+            SET final_leader_id = next_leader_id;
+            
+        ELSE
+            -- 3-1-2. 자동 위임: 신뢰도 1등 찾기
+            SELECT u.user_id INTO final_leader_id
+            FROM study_member sm
+            JOIN user u ON sm.user_id = u.user_id
+            WHERE sm.post_id = p_post_id 
+              AND sm.status = 'ACCEPTED'
+              AND sm.user_id != withdraw_leader_id
+            ORDER BY u.reliability_score DESC, sm.joined_at ASC
+            LIMIT 1;
+        END IF;
+
+        -- 4. 리더 변경 및 공고 업데이트
+        IF final_leader_id IS NOT NULL THEN
+            -- 멤버 직책 변경
+            UPDATE study_member 
+            SET role = 'LEADER'
+            WHERE post_id = p_post_id AND user_id = final_leader_id;
+
+            -- 공고 대표자 변경
+            UPDATE study_post 
+            SET leader_id = final_leader_id
+            WHERE post_id = p_post_id;
+        END IF;
+    END IF;
+END$$
+DELIMITER ;
+
+-- 2번 스터디, 3번 팀장 탈퇴, 후계자는 자동 선정(NULL)
+CALL change_withdraw_leader(2, 3, NULL);
+
+-- 2번 스터디, 3번 팀장 탈퇴, 후계자는 4번 유저 지정
+CALL change_withdraw_leader(2, 3, 4);
+```
+- 프로시저 생성 전 팀장이 나간 경우 WITHDRAWED 상태, 팀장 위임 안됨
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_007/%ED%94%84%EB%A1%9C%EC%8B%9C%EC%A0%80%20%EC%83%9D%EC%84%B1%EC%A0%84/%ED%8C%80%EC%9E%A5%EC%9D%B4%20WITHDRAWED%20%EC%83%81%ED%83%9C%EB%A1%9C%20%EA%B3%84%EC%86%8D%20%EB%82%A8%EC%95%84%EC%9E%88%EC%9D%8C,%20%ED%8C%80%EC%9E%A5%EC%9D%B8%20%EC%83%81%ED%83%9C%20%EA%B7%B8%EB%8C%80%EB%A1%9C%EC%9E%84.png?raw=true)
+
+- 프로시저 생성 후 팀장이 위임 없이 나간 경우 신뢰도 높은 사람에게 위임
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_007/%ED%94%84%EB%A1%9C%EC%8B%9C%EC%A0%80%20%EC%83%9D%EC%84%B1%ED%9B%84/%ED%8C%80%EC%9E%A5%EC%9D%B4%20%EC%9C%84%EC%9E%84%EC%97%86%EC%9D%B4%20%EB%82%98%EA%B0%84%20%EA%B2%BD%EC%9A%B0%20%EC%8B%A0%EB%A2%B0%EB%8F%84%20%EA%B0%80%EC%9E%A5%20%EB%86%92%EC%9D%80%20%EC%82%AC%EB%9E%8C%ED%95%9C%ED%85%8C%20%EC%9C%84%EC%9E%84.png?raw=true)
+
+- 프로시저 생성 후 팀장이 4번 유저에게 위임후 나감
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_007/%ED%94%84%EB%A1%9C%EC%8B%9C%EC%A0%80%20%EC%83%9D%EC%84%B1%ED%9B%84/%ED%8C%80%EC%9E%A5%EC%9D%B4%204%EB%B2%88%20%EC%9C%A0%EC%A0%80%EC%97%90%EA%B2%8C%20%EC%9C%84%EC%9E%84%ED%9B%84%20%EB%82%98%EA%B0%90.png?raw=true)
+
+</details>
+
+<details>
+<summary>4-8. 스터디 완료</summary>
+
+```sql
+-- ===================== LEADER_008 =====================
+-- 스터디 완료시 팀장권한으로 스터디 완료상태 변경
+-- 스터디 완료시 협업완료 횟수 증가
+-- 상태가 ACCEPTED 된 스터디 멤버만 completed_study 증가해야함
+-- 완료로 변경시 accepted 된 회원만 completed_studies가 1 증가
+DELIMITER $$
+CREATE TRIGGER trg_auto_increase_count
+AFTER UPDATE ON study_post
+FOR EACH ROW
+BEGIN
+    IF NEW.post_status = 'COMPLETED' AND OLD.post_status != 'COMPLETED' THEN
+        UPDATE user
+        SET completed_studies = completed_studies + 1
+        WHERE user_id IN (
+            SELECT user_id 
+            FROM study_member 
+            WHERE post_id = NEW.post_id AND status = 'ACCEPTED'
+        );
+    END IF;
+END$$
+DELIMITER ;
+```
+- 멤버가 협업 완료 변경 시도 시 변경 안됨
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_008/%EB%A9%A4%EB%B2%84%EA%B0%80%20%EA%B3%B5%EA%B3%A0%20%EC%83%81%ED%83%9C%20%EB%B3%80%EA%B2%BD%EC%8B%9C%20%EB%B3%80%EA%B2%BD%EC%95%88%EB%90%A8.png?raw=true)
+
+- 리더가 협업 완료 변경 시 변경됨
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_008/%EB%A6%AC%EB%8D%94%EA%B0%80%20%EA%B3%B5%EA%B3%A0%20%EC%83%81%ED%83%9C%20%EB%B3%80%EA%B2%BD%EC%8B%9C%20%EB%B3%80%EA%B2%BD%EB%90%A8.png?raw=true)
+
+-스터디 완료시 ACCEPTED 였던 멤버만 completed_studies 1 증가
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_008/%EC%8A%A4%ED%84%B0%EB%94%94%20%EC%99%84%EB%A3%8C%EC%8B%9C%20ACCEPTED%EB%90%9C%20%EB%A9%A4%EB%B2%84%EB%A7%8C%20completed_studies%EA%B0%80%201%20%EC%A6%9D%EA%B0%80.png?raw=true)
+
+</details>
+
+<details>
+<summary>4-9. 스터디 참가 신청</summary>
+
+```sql
+-- ===================== MEMBER_001 =====================
+-- 상황: 4번 유저가 2번 공고에 참여 신청
+SELECT post_id, 
+		 user_id, 
+		 role, 
+		 STATUS
+FROM study_member
+WHERE post_id = 2 AND user_id=4;
+
+
+INSERT INTO study_member (post_id, user_id, role, STATUS) 
+VALUES (2, 4, 'MEMBER', 'PENDING');
+```
+- 유저가 공고에 참여신청
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/MEMBER_001/4%EB%B2%88%20%EC%9C%A0%EC%A0%80%EA%B0%80%202%EB%B2%88%20%EA%B3%B5%EA%B3%A0%EC%97%90%20%EC%B0%B8%EC%97%AC%20%EC%8B%A0%EC%B2%AD%20%ED%9B%84.png?raw=true)
+
+- 같은 공고에 중복 신청 방지
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/MEMBER_001/%EC%9D%B4%EB%AF%B8%20%EB%93%B1%EB%A1%9D%EB%90%A8,%20%EC%A4%91%EB%B3%B5%EB%B0%A9%EC%A7%80.png?raw=true)
+
+
+</details>
+
 <details>
 <summary>1-1. 회원가입</summary>
 
@@ -936,9 +1338,142 @@ DELIMITER ;
 
 </details>
 
-### 👤 5. 이용호
 <details>
 <summary>1-1. 회원가입</summary>
+
+```sql
+
+```
+
+![image](https://github.com/user-attachments/assets/52e81b9c-1b90-476a-8cc7-80646a1d90a7)
+
+![image](https://github.com/user-attachments/assets/6cdbac9e-3874-4734-bd78-97c28114ce1a)
+
+</details>
+
+### 👤 5. 윤정윤
+<details>
+<summary>5-1. 유저 스터디 참여 현황 조회</summary>
+
+```sql
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE studyStatusProc(
+    IN p_userId INT,
+    IN p_studyStatus VARCHAR(20)
+)
+BEGIN
+    SELECT
+        sp.post_id,
+        sp.title,
+        sm.status AS '상태',
+        sm.user_id
+    FROM study_member sm
+             JOIN study_post sp ON sp.post_id = sm.post_id
+    WHERE sm.user_id = p_userId
+      AND (
+        p_studyStatus IS NULL
+            OR sm.status = p_studyStatus
+        );
+END$$
+DELIMITER ;
+
+CALL studyStatusProc(10, 'PENDING');
+```
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/USER_013/USER_013_result.png?raw=true)
+
+</details>
+
+<details>
+<summary>5-2. 거절된 스터디 내역 삭제</summary>
+
+```sql
+-- '거절됨' 스터디 내역 삭제
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE deleteStudyRecordProc(
+    IN userId INT,
+    IN postId INT
+)
+BEGIN
+    DELETE FROM study_member
+    WHERE user_id = userId AND post_id = postId AND status = 'REJECTED';
+END$$
+DELIMITER ;
+
+CALL deleteStudyRecordProc(1, 3);
+```
+</details>
+
+<details>
+<summary>5-3. 북마크 등록</summary>
+
+```sql
+-- 로그인된 아이디와 게시물 아이디를 통해 북마크 등록
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE createBookmarkProc(
+    IN userId INT,
+    IN postId INT
+)
+BEGIN
+    DECLARE CONTINUE HANDLER FOR 1062
+        SELECT '이미 존재하는 북마크 입니다.' AS result;
+
+    INSERT INTO bookmark(user_id, post_id)
+    VALUES (userId, postId);
+END$$
+DELIMITER ;
+
+CALL createBookmarkProc(1, 5);
+```
+</details>
+
+<details>
+<summary>5-4. 북마크 조회</summary>
+
+```sql
+-- 로그인된 아이디를 통해 북마크 목록 조회
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE showBookmarkProc(
+    IN userId INT
+)
+BEGIN
+    SELECT bookmark.*,
+           sp.title
+    FROM bookmark
+             LEFT OUTER JOIN study_post sp ON bookmark.post_id = sp.post_id
+    WHERE user_id = userId;
+END$$
+DELIMITER ;
+
+CALL showBookmarkProc(1);
+```
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/USER_016/USER_016_result.png?raw=true)
+
+</details>
+
+<details>
+<summary>5-5. 북마크 해제</summary>
+
+```sql
+-- 로그인된 아이디와 게시물 아이디를 통해 북마크 해제
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE deleteBookmarkProc(
+    IN userId INT,
+    IN postId INT
+)
+BEGIN
+    DELETE FROM bookmark
+    WHERE user_id = userId AND post_id = postId;
+END$$
+DELIMITER ;
+
+CALL deleteBookmarkProc(1, 5);
+```
+
+</details>
+
+### 👤 6. 이다윗
+<details>
+<summary>1. 스터디 모집글 작성</summary>
 
 ```sql
 
@@ -951,23 +1486,39 @@ DELIMITER ;
 
 </details>
 
-### 👤 6. 박재하
+### 📌 아키텍처
+<img src="./image/Web_App_Reference_Architecture_1.webp" width="1000" alt="ERD image" />
+
+
+### 🔍 테스트
 <details>
-<summary>1-1. 회원가입</summary>
+<summary>1. 쿼리 분기 테스트</summary>
 
-```sql
+- 분기 테스트용 쿼리 -> ProxySQL(6033)
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/test_result/routing_test_query.png?raw=true)
 
-```
-
-![image](https://github.com/user-attachments/assets/52e81b9c-1b90-476a-8cc7-80646a1d90a7)
-
-![image](https://github.com/user-attachments/assets/6cdbac9e-3874-4734-bd78-97c28114ce1a)
-
+- 쿼리 분기 결과 조회 -> 6032(admin)  hostgroup 10 = master, hostgroup 20 = slave
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/test_result/query%20routing_result.png?raw=true)
 
 </details>
 
+<details>
+<summary>2. 장애 복구 테스트</summary>
 
+- 기본 데이터베이스 상태
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/default_status.png?raw=true)
 
+- Master DB 장애 이후 Slave DB를 Mater로 승격
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/replica_to_master.png?raw=true)
+
+- Mater 서버 복구 후 DB role 정상화
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/return_master.png?raw=true)
+</details>
+
+<details>
+<summary>3. 쿼리 튜닝 테스트</summary>
+
+</details>
 ## 회고록
 
 ---
