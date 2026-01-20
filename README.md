@@ -817,7 +817,7 @@ VALUES (5, 2, 'SPAM', '욕설', 2);
 ```
 	
 
-![image](김다솜/USER_009/Error.png)
+![image](김다솜/USER_009/post_report.png)
 
 <br>
 </details>
