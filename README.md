@@ -904,7 +904,7 @@ DELIMITER ;
 
 
 <details>
-<summary>2-4. [트리거] 스터디 미완수 시 평가 불가능 </summary>
+<summary>2-5. [트리거] 스터디 미완수 시 평가 불가능 </summary>
 
 ``` sql
 DELIMITER $$
@@ -929,7 +929,7 @@ END$$
 </details>
 
 <details>
-<summary>2-5. 채팅 읽은 사람 수 카운트</summary>
+<summary>2-6. 채팅 읽은 사람 수 카운트</summary>
 
 ```sql
 SELECT COUNT(*) AS count_member
@@ -940,7 +940,7 @@ WHERE message_id = 1 AND is_read = 1;
 
 </details>
 <details>
-<summary> 2-6. 채팅 전체 조회 </summary>
+<summary> 2-7. 채팅 전체 조회 </summary>
 
 
 ```sql
