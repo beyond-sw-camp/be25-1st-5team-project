@@ -865,7 +865,7 @@ DELIMITER ;
 </details>
 
 <details>
-<summary>2-3. [트리거] 신뢰점수 계산 후 유저 테이블 반영</summary>
+<summary>2-4. [트리거] 신뢰점수 계산 후 유저 테이블 반영</summary>
 
 ```sql
 CREATE TRIGGER trg_update_reliability_score
@@ -1952,7 +1952,7 @@ DELIMITER ;
 ---
 
 ### 🌸 김다솜
->  
+>  학교에서 배운
 >  
 >  
 
