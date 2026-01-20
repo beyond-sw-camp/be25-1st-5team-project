@@ -131,8 +131,8 @@
 ## 📋 요구사항 명세
 
 ### 🧾 요구사항 정의서
-![요구사항 정의서 이미지]([이미지 URL])
-- [📂 요구사항 정의서 링크]([링크])
+- [📂 요구사항 정의서 링크](./requirements.pdf)
+- [📂 요구사항 정의서 링크](https://docs.google.com/spreadsheets/d/1Q1jzi_nl8RFUq_z4TsBLuJ0TAfOchFgY/edit?pli=1&gid=594161354#gid=594161354)
 
 ### ✅ 기능 요구사항
 - [기능 1]
