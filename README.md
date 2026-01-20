@@ -136,8 +136,7 @@
 <p align="center">
   <img src="./image/requirements.jpg" width="175%" alt="요구사항 정의서 미리보기" />
 </p>
-
-- [📂 요구사항 정의서 링크](https://docs.google.com/spreadsheets/d/1Q1jzi_nl8RFUq_z4TsBLuJ0TAfOchFgY/edit?pli=1&gid=594161354#gid=594161354)
+- [📂 요구사항 정의서 링크](https://docs.google.com/spreadsheets/d/1Q1jzi_nl8RFUq_z4TsBLuJ0TAfOchFgY/edit?pli=1&gid=594161354#gid=594161354)</br>
 
 ### ✅ 요구사항
 - 사용자 계정 생성, 로그인, 정보 수정 및 탈퇴 (블랙리스트 대조 포함)
