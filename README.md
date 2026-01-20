@@ -1174,29 +1174,64 @@ CALL change_withdraw_leader(2, 3, 4);
 </details>
 
 <details>
-<summary>1-1. 회원가입</summary>
+<summary>4-8. 스터디 완료</summary>
 
 ```sql
-
+-- ===================== LEADER_008 =====================
+-- 스터디 완료시 팀장권한으로 스터디 완료상태 변경
+-- 스터디 완료시 협업완료 횟수 증가
+-- 상태가 ACCEPTED 된 스터디 멤버만 completed_study 증가해야함
+-- 완료로 변경시 accepted 된 회원만 completed_studies가 1 증가
+DELIMITER $$
+CREATE TRIGGER trg_auto_increase_count
+AFTER UPDATE ON study_post
+FOR EACH ROW
+BEGIN
+    IF NEW.post_status = 'COMPLETED' AND OLD.post_status != 'COMPLETED' THEN
+        UPDATE user
+        SET completed_studies = completed_studies + 1
+        WHERE user_id IN (
+            SELECT user_id 
+            FROM study_member 
+            WHERE post_id = NEW.post_id AND status = 'ACCEPTED'
+        );
+    END IF;
+END$$
+DELIMITER ;
 ```
+- 멤버가 협업 완료 변경 시도 시 변경 안됨
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_008/%EB%A9%A4%EB%B2%84%EA%B0%80%20%EA%B3%B5%EA%B3%A0%20%EC%83%81%ED%83%9C%20%EB%B3%80%EA%B2%BD%EC%8B%9C%20%EB%B3%80%EA%B2%BD%EC%95%88%EB%90%A8.png?raw=true)
 
-![image](https://github.com/user-attachments/assets/52e81b9c-1b90-476a-8cc7-80646a1d90a7)
+- 리더가 협업 완료 변경 시 변경됨
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_008/%EB%A6%AC%EB%8D%94%EA%B0%80%20%EA%B3%B5%EA%B3%A0%20%EC%83%81%ED%83%9C%20%EB%B3%80%EA%B2%BD%EC%8B%9C%20%EB%B3%80%EA%B2%BD%EB%90%A8.png?raw=true)
 
-![image](https://github.com/user-attachments/assets/6cdbac9e-3874-4734-bd78-97c28114ce1a)
-
+-스터디 완료시 ACCEPTED 였던 멤버만 completed_studies 1 증가
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_008/%EC%8A%A4%ED%84%B0%EB%94%94%20%EC%99%84%EB%A3%8C%EC%8B%9C%20ACCEPTED%EB%90%9C%20%EB%A9%A4%EB%B2%84%EB%A7%8C%20completed_studies%EA%B0%80%201%20%EC%A6%9D%EA%B0%80.png?raw=true)
 
 </details>
 
 <details>
-<summary>1-1. 회원가입</summary>
+<summary>4-9. 스터디 참가 신청</summary>
 
 ```sql
+-- ===================== MEMBER_001 =====================
+-- 상황: 4번 유저가 2번 공고에 참여 신청
+SELECT post_id, 
+		 user_id, 
+		 role, 
+		 STATUS
+FROM study_member
+WHERE post_id = 2 AND user_id=4;
 
+
+INSERT INTO study_member (post_id, user_id, role, STATUS) 
+VALUES (2, 4, 'MEMBER', 'PENDING');
 ```
+- 유저가 공고에 참여신청
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/MEMBER_001/4%EB%B2%88%20%EC%9C%A0%EC%A0%80%EA%B0%80%202%EB%B2%88%20%EA%B3%B5%EA%B3%A0%EC%97%90%20%EC%B0%B8%EC%97%AC%20%EC%8B%A0%EC%B2%AD%20%ED%9B%84.png?raw=true)
 
-![image](https://github.com/user-attachments/assets/52e81b9c-1b90-476a-8cc7-80646a1d90a7)
-
-![image](https://github.com/user-attachments/assets/6cdbac9e-3874-4734-bd78-97c28114ce1a)
+- 같은 공고에 중복 신청 방지
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/MEMBER_001/%EC%9D%B4%EB%AF%B8%20%EB%93%B1%EB%A1%9D%EB%90%A8,%20%EC%A4%91%EB%B3%B5%EB%B0%A9%EC%A7%80.png?raw=true)
 
 
 </details>
