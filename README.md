@@ -924,30 +924,106 @@ WHERE post_id = 1;
 </details>
 
 <details>
-<summary>1-1. 회원가입</summary>
+<summary>4-3. 게시글 수정</summary>
 
 ```sql
+-- ===================== LEADER_003 =====================
+-- 제목이나 내용을 수정. 반드시 leader_id만 수정가능해야함
+DELIMITER $$
+CREATE PROCEDURE `update_study_post`(
+    IN p_post_id      INT,
+    IN p_requester_id INT,
+    IN p_title        VARCHAR(255),
+    IN p_content      TEXT,
+    IN p_way          VARCHAR(10)
+)
+BEGIN
+    -- 1. 업데이트 수행 (권한 체크 포함)
+    UPDATE study_post
+    SET title      = p_title,
+        content    = p_content,
+        way        = p_way,
+        updated_at = NOW()
+    WHERE post_id = p_post_id 
+      AND leader_id = p_requester_id;
+    
+    -- 2. 결과 조회
+    SELECT sp.leader_id,
+           sm.user_id,
+           sp.title,
+           sp.content,
+           sp.way
+    FROM study_member sm
+    JOIN study_post sp ON sm.post_id = sp.post_id
+    WHERE sp.post_id = p_post_id; 
 
+END$$ 
+
+DELIMITER ;
+
+-- 멤버가 수정하는 경우 -> 수정 안됨
+CALL update_study_post(2, 5, '제목 입력 ...', '상세 내용 입력 ...', 'ONLINE');
+
+-- 리더가 수정하는 경우 -> 수정 됨
+CALL update_study_post(2, 2, '제목 입력 ...', '상세 내용 입력 ...', 'ONLINE');
 ```
+- 스터디 공고 멤버는 수정 못함
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_003/%EC%8A%A4%ED%84%B0%EB%94%94%20%EA%B3%B5%EA%B3%A0%20%EB%A9%A4%EB%B2%84%EB%8A%94%20%EC%88%98%EC%A0%95%20%EB%AA%BB%ED%95%A8.png?raw=true)
 
-![image](https://github.com/user-attachments/assets/52e81b9c-1b90-476a-8cc7-80646a1d90a7)
-
-![image](https://github.com/user-attachments/assets/6cdbac9e-3874-4734-bd78-97c28114ce1a)
+-스터디 공고를 리더는 수정 가능
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_003/%EC%8A%A4%ED%84%B0%EB%94%94%20%EA%B3%B5%EA%B3%A0%20%EB%A6%AC%EB%8D%94%EB%8A%94%20%EC%88%98%EC%A0%95%20%EA%B0%80%EB%8A%A5.png?raw=true)
 
 
 </details>
 
 <details>
-<summary>1-1. 회원가입</summary>
+<summary>4.4 팀원 내보내기</summary>
 
 ```sql
+-- ===================== LEADER_004 =====================
+-- 강퇴시 자동으로 리더 명의로 1점 부여
+-- 상태가 KICKECD 일때만 작동
+-- 이미 평가가 존재할 경우 IGNORE로 중복방지
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `trg_auto_review_if_kicked`
+AFTER UPDATE ON study_member
+FOR EACH ROW
+BEGIN
+    DECLARE post_leader_id INT;
+    IF NEW.status = 'KICKED' AND OLD.status != 'KICKED' THEN
+        -- 1. 해당 스터디의 팀장 ID 찾기 (평가자 = 팀장)
+        SELECT leader_id INTO post_leader_id
+        FROM study_post
+        WHERE post_id = NEW.post_id;
 
+        -- 2. 팀장 이름으로 1점 자동 평가(에러 방지를 위해 IGNORE)
+        INSERT IGNORE INTO peer_review 
+        (post_id, reviewer_id, reviewee_id, contribution_score, communication_score, time_compliance_score, diligence_score)
+        VALUES 
+        (
+            NEW.post_id,  -- 공고 ID
+            post_leader_id,  -- 평가자 (팀장)
+            NEW.user_id,  -- 피평가자 (강퇴된 멤버)
+            1, 1, 1, 1    -- 점수 (전부 1점)
+        );
+
+        -- 강퇴된 유저의 penalty_count 1 증가
+        UPDATE user
+        SET penalty_count = IFNULL(penalty_count, 0) + 1
+        WHERE user_id = NEW.user_id;
+
+    END IF;
+END$$
+DELIMITER ;
 ```
+- 스터디 공고에 멤버확인
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_004/%EC%8A%A4%ED%84%B0%EB%94%94%20%EA%B3%B5%EA%B3%A0%EC%97%90%20%EB%A9%A4%EB%B2%84%20%EC%83%81%ED%83%9C%20%ED%99%95%EC%9D%B8.png?raw=true)
 
-![image](https://github.com/user-attachments/assets/52e81b9c-1b90-476a-8cc7-80646a1d90a7)
+- 강퇴 당한후 KICKED로 상태 변경 및 강퇴 사유 입력
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_004/%EA%B0%95%ED%87%B4%20%EB%8B%B9%ED%95%9C%ED%9B%84%20KICKED%EB%A1%9C%20%EC%83%81%ED%83%9C%20%EB%B3%80%EA%B2%BD%20%EB%B0%8F%20%EA%B0%95%ED%87%B4%20%EC%82%AC%EC%9C%A0%20%EC%9E%85%EB%A0%A5%EC%99%84%EB%A3%8C.png?raw=true)
 
-![image](https://github.com/user-attachments/assets/6cdbac9e-3874-4734-bd78-97c28114ce1a)
-
+- 스터디에서 강퇴당하면  팀장ID로 입력 모든 점수 1점으로 입력
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_004/%EC%8A%A4%ED%84%B0%EB%94%94%EC%97%90%EC%84%9C%20%EA%B0%95%ED%87%B4%EB%8B%B9%ED%95%98%EB%A9%B4%20%20%ED%8C%80%EC%9E%A5ID%EB%A1%9C%20%EC%9E%85%EB%A0%A5%20%EB%AA%A8%EB%93%A0%20%EC%A0%90%EC%88%98%201%EC%A0%90%20%EC%9E%85%EB%A0%A5.png?raw=true)
 
 </details>
 
