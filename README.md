@@ -786,17 +786,82 @@ VALUES
 
 </details>
 
-### 👤 2. 상호작용 및 커뮤니케이션 (Interaction) 
+### 🕵️ 2. 상호작용 및 커뮤니케이션
 <details>
 <summary>2-1. 회원 신고</summary>
+	
+```sql
+INSERT INTO user_report (
+    reporter_id,
+    target_id,
+    reason_type,
+    reason_detail)
+VALUES (10, 9, 'SPAM', '욕설');
+```
+
+![image](김다솜/USER_008/User_report.png)
+<br>
 </details>
 
 <details>
 <summary>2-2. 게시글 신고</summary>
+```sql
+INSERT INTO user_report (
+    reporter_id,
+    target_id,
+    reason_type,
+    reason_detail,
+	 target_post_id)
+VALUES (5, 2, 'SPAM', '욕설', 2);
+```
+
+![image](김다솜/USER_009/post_report.png)
 </details>
 
 <details>
-<summary>2-3. 신뢰점수 계산 후 유저 테이블 반영</summary>
+<summary>2-3.(사용자, 게시글) 중복 신고 불가능 </summary>
+
+```sql  
+	
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS report_unified $$
+CREATE PROCEDURE report_unified (
+    IN p_reporter_id INT,       
+    IN p_target_id INT,      
+    IN p_reason_type VARCHAR(50),
+    IN p_reason_detail TEXT,
+    IN p_target_post_id INT   
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLSTATE '23000'
+    BEGIN
+        RESIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '중복 신고는 불가능합니다.';
+    END;
+
+    INSERT INTO user_report (
+        reporter_id,
+        target_id,
+        target_post_id,
+        reason_type,
+        reason_detail
+    ) VALUES (
+        p_reporter_id,
+        p_target_id,
+        p_target_post_id,  
+        p_reason_type,
+        p_reason_detail
+    );
+END$$
+
+DELIMITER ;
+```
+![image](김다솜/USER_009/Error.png)
+</details>
+
+<details>
+<summary>2-3. [트리거] 신뢰점수 계산 후 유저 테이블 반영</summary>
 
 ```sql
 CREATE TRIGGER trg_update_reliability_score
