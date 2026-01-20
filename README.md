@@ -147,7 +147,7 @@
 ## 🧩 데이터베이스 설계
 
 ### 📌 ERD 구조도
-![ERD 이미지]([ERD 이미지 URL])
+<img src="./image/ERD.png" width="1000" alt="ERD image" />
 
 ### 📋 테이블 명세
 - [📂 테이블 명세서 링크]([링크])
