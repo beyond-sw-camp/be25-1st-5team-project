@@ -2153,11 +2153,6 @@ DELIMITER ;
 ![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/test_result/return_master.png?raw=true)
 </details>
 
-<details>
-<summary>3. 쿼리 튜닝 테스트</summary>
-
-</details>
-
 ## **회고록**
 
 
