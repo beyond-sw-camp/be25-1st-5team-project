@@ -1043,7 +1043,7 @@ CALL viewStudy(1); -- 게시물 아이디 입력
 
 ### 👑 4. 스터디 관리 및 리더 기능
 <details>
-<summary>4-1. 스터디 모집글 작성</summary>
+<summary>4-1. [트리거] 스터디 모집글 작성</summary>
 
 ```sql
 -- ===================== LEADER_001 =====================
@@ -1051,7 +1051,7 @@ CALL viewStudy(1); -- 게시물 아이디 입력
 -- 팀장ID는 스터디 공고 만든 유저의 ID / 모집공고를 올리면 자동으로 리더 ID로 승격
 
 DELIMITER $$
-CREATE OR replace TRIGGER `trg_auto_leader_if_make_post`
+CREATE TRIGGER `trg_auto_leader_if_make_post`
 AFTER INSERT ON `study_post`
 FOR EACH ROW
 BEGIN
@@ -1087,16 +1087,14 @@ VALUES
 </details>
 
 <details>
-<summary>4-2. 스터디 모집글 삭제</summary>
+<summary>4-2. [트리거] 스터디 모집글 삭제</summary>
 
 ```sql
 -- ===================== LEADER_002 =====================
 -- 팀장이 공고를 삭제하기 위해서는 참조하는 다른 자식 테이블을 먼저 삭제해야함
 -- 채팅 읽음상태, 채팅메세지 삭제, 공고 태그삭제, 북마크 삭제, 동료평가 삭제, 신고내역 삭제, 스터디 멤버 삭제 순으로 해야함
 -- 테이블을 ALTER CASCADE 하는 것 보단 트리거를 통해서 삭제
-DROP TRIGGER IF EXISTS `trg_cleanup_on_post_cancel`;
 DELIMITER $$
-
 CREATE TRIGGER `trg_cleanup_on_post_cancel`
 AFTER UPDATE ON `study_post`
 FOR EACH ROW
@@ -1109,7 +1107,7 @@ BEGIN
         WHERE post_id = NEW.post_id;
 
         -- (2) 스터디 멤버: 상태를 'CANCELED'로 변경
-        -- 참여 중('ACCEPTED')이거나 대기 중('PENDING')인 멤버만 처리
+        -- 참여(ACCEPTED) 이거나 대기(PENDING)인 멤버만 처리
         UPDATE study_member
         SET status = 'CANCELED',
             status_updated_at = NOW()
@@ -1153,7 +1151,7 @@ CREATE PROCEDURE `update_study_post`(
     IN p_way          VARCHAR(10)
 )
 BEGIN
-    -- 1. 업데이트 수행 (권한 체크 포함)
+    -- 1. 업데이트 수행 (리더더 체크 포함)
     UPDATE study_post
     SET title      = p_title,
         content    = p_content,
@@ -1192,7 +1190,7 @@ CALL update_study_post(2, 2, '제목 입력 ...', '상세 내용 입력 ...', 'O
 </details>
 
 <details>
-<summary>4-4 팀원 내보내기</summary>
+<summary>4-4 [트리거] 팀원 내보내기</summary>
 
 ```sql
 -- ===================== LEADER_004 =====================
@@ -1200,7 +1198,7 @@ CALL update_study_post(2, 2, '제목 입력 ...', '상세 내용 입력 ...', 'O
 -- 상태가 KICKECD 일때만 작동
 -- 이미 평가가 존재할 경우 IGNORE로 중복방지
 DELIMITER $$
-CREATE OR REPLACE TRIGGER `trg_auto_review_if_kicked`
+CREATE TRIGGER `trg_auto_review_if_kicked`
 AFTER UPDATE ON study_member
 FOR EACH ROW
 BEGIN
@@ -1248,13 +1246,13 @@ DELIMITER ;
 
 ```sql
 -- ===================== LEADER_005, LEADER_006 =====================
--- pending인 사람들 리더가 accept나 reject로 바꿈
+-- pending인 사람들 리더가 ACCEPTED나 REJECTED로 바꿈
 DELIMITER $$
 CREATE PROCEDURE `update_member_status`(
     IN p_post_id      INT,          -- 스터디 공고 ID
     IN p_requester_id INT,          -- 요청자 ID (리더인지 검증할 ID)
     IN p_target_id    INT,          -- 상태를 변경할 대상 회원 ID
-    IN p_new_status   VARCHAR(20)   -- 변경할 상태 ('REJECTED', 'ACCEPTED' 등)
+    IN p_new_status   VARCHAR(20)   -- 변경할 상태 (REJECTED, ACCEPTED 등)
 )
 BEGIN
     -- 1. 업데이트 수행 (리더 권한 체크 포함)
@@ -1264,7 +1262,7 @@ BEGIN
         sm.status_updated_at = NOW()
     WHERE sm.post_id = p_post_id
       AND sm.user_id = p_target_id   -- 변경 대상
-      AND sp.leader_id = p_requester_id; -- 요청자가 리더여야만 실행됨
+      AND sp.leader_id = p_requester_id; -- 요청자가 리더여야만 실행
 
     -- 2. 결과 반환
     SELECT post_id, 
@@ -1389,7 +1387,7 @@ CALL change_withdraw_leader(2, 3, 4);
 </details>
 
 <details>
-<summary>4-8. 스터디 완료</summary>
+<summary>4-8. [트리거] 스터디 완료</summary>
 
 ```sql
 -- ===================== LEADER_008 =====================
@@ -1641,7 +1639,7 @@ WHERE report_id = 1; -- 예시 ID
 ```sql
 -- ADMIN_002: 신고 사항 처리
 
--- [프로시저] 신고 처리 (proc_process_report)
+-- 신고 처리 (proc_process_report)
 
 DELIMITER $$
 
