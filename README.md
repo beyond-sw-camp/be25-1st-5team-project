@@ -171,10 +171,271 @@
 
 ### 📌 Schema DDL
 
+### 1. 공통 지역 코드
+
 ```sql
--- 예시 테이블 생성 구문
-CREATE TABLE Example (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100),
-    created_at DATETIME DEFAULT NOW()
-);
+-- 공통 지역 코드 (도/시 단위)
+CREATE TABLE `common_region`
+(
+    `region_id` INT PRIMARY KEY AUTO_INCREMENT,     -- 지역 ID
+    `city`      VARCHAR(50) NOT NULL                -- 도/시 (예: 서울, 경기)
+) COMMENT '공통 지역 코드'
+ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+```
+
+### 2. 블랙리스트
+
+```sql
+-- 악성 사용자 관리를 위한 블랙리스트
+CREATE TABLE `black_list`
+(
+    `email`      VARCHAR(100) PRIMARY KEY,          -- 블랙리스트 이메일 (PK)
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 등록 일시
+    `reason`     TEXT NULL                          -- 등록 사유
+) COMMENT '블랙리스트 관리'
+ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+```
+
+### 3. 공통 태그
+
+```sql
+-- 기술 스택 및 카테고리 태그 관리
+CREATE TABLE `common_tag`
+(
+    `tag_id`   INT PRIMARY KEY AUTO_INCREMENT,      -- 태그 고유 ID
+    `tag_name` VARCHAR(50) NOT NULL,                -- 태그 이름
+    `tag_type` ENUM('CATEGORY', 'LANGUAGE', 'FRONTEND', 'BACKEND', 'MOBILE', 'DB', 'OTHER') NOT NULL, -- 태그 유형
+    UNIQUE KEY `UQ_common_tag_name_type` (`tag_name`, `tag_type`)
+) COMMENT '공통 태그'
+ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+```
+
+### 4. 회원
+
+```sql
+-- 사용자 기본 정보 및 신뢰지수 관리
+CREATE TABLE `user`
+(
+    `user_id`              INT PRIMARY KEY AUTO_INCREMENT,  -- 아이디
+    `pw`                   VARCHAR(255) NOT NULL,           -- 비밀번호
+    `name`                 VARCHAR(50) NOT NULL,            -- 이름
+    `gender`               ENUM('M','F') NULL,              -- 성별
+    `birth_date`           DATE NOT NULL,                   -- 생년월일
+    `phone`                VARCHAR(20) NOT NULL,            -- 전화번호
+    `nickname`             VARCHAR(50) NOT NULL,            -- 닉네임
+    `profile_image`        VARCHAR(255) NULL,               -- 프로필사진
+    `email`                VARCHAR(100) NOT NULL,           -- 이메일 아이디
+    `region_id`            INT NULL,                        -- 활동 지역 ID (FK)
+    `completed_studies`    INT NOT NULL DEFAULT 0,          -- 스터디완수 횟수
+    `penalty_count`        INT NOT NULL DEFAULT 0,          -- 패널티 횟수
+    `reliability_score`    DECIMAL(5, 2) NOT NULL DEFAULT 0.00, -- 신뢰지수
+    `status`               ENUM('ACTIVE','SUSPENDED','WITHDRAWN') NOT NULL DEFAULT 'ACTIVE', -- 회원상태
+    `last_nickname_update` DATETIME NULL,                   -- 마지막 닉네임 변경일
+    `created_at`           DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 가입일시
+    `role`                 ENUM ('ADMIN','USER') NOT NULL DEFAULT 'USER', -- 권한
+    UNIQUE KEY `UQ_phone` (`phone`),
+    UNIQUE KEY `UQ_nickname` (`nickname`),
+    UNIQUE KEY `UQ_email` (`email`),
+    FOREIGN KEY (`region_id`) REFERENCES `common_region` (`region_id`)
+) COMMENT '회원'
+ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+```
+
+### 5. 스터디 공고
+
+```sql
+-- 스터디 모집 공고 정보
+CREATE TABLE `study_post`
+(
+    `post_id`           INT PRIMARY KEY AUTO_INCREMENT,     -- 공고 ID
+    `leader_id`         INT NOT NULL,                       -- 팀장 ID (FK)
+    `title`             VARCHAR(255) NOT NULL,              -- 제목
+    `content`           TEXT NOT NULL,                      -- 상세내용
+    `max_participants`  INT NOT NULL,                       -- 모집인원
+    `view_count`        INT NOT NULL DEFAULT 0,             -- 조회수
+    `way`               ENUM('ONLINE','OFFLINE','BOTH') NOT NULL, -- 진행 방식
+    `region_id`         INT NULL,                           -- 활동 지역 ID (FK)
+    `min_reliability`   DECIMAL(5,2) NULL,                  -- 최소 지원 신뢰 지수
+    `post_status`       ENUM('RECRUITING','IN_PROGRESS','COMPLETED','CANCELED') NOT NULL DEFAULT 'RECRUITING', -- 모집상태
+    `predict_finish_at` DATETIME NULL,                      -- 예상 종료 일시
+    `start_at`          DATETIME NULL,                      -- 스터디 시작일시
+    `finish_at`         DATETIME NULL,                      -- 스터디 종료 일시
+    `created_at`        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 등록일시
+    `updated_at`        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 수정일시
+    FOREIGN KEY (`leader_id`) REFERENCES `user` (`user_id`),
+    FOREIGN KEY (`region_id`) REFERENCES `common_region` (`region_id`)
+) COMMENT '스터디 공고'
+ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+```
+
+### 6. 유저 기술 스택
+
+```sql
+-- 사용자가 보유한 기술 스택 태그 매핑
+CREATE TABLE `user_tech_stack`
+(
+    `user_tech_id` INT PRIMARY KEY AUTO_INCREMENT,      -- 유저 기술 ID
+    `user_id`      INT NOT NULL,                        -- 회원 ID (FK)
+    `tag_id`       INT NOT NULL,                        -- 태그 ID (FK)
+    UNIQUE KEY `UQ_user_tech_stack` (`user_id`, `tag_id`),
+    FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`),
+    FOREIGN KEY (`tag_id`) REFERENCES `common_tag` (`tag_id`)
+) COMMENT '유저 기술 스택'
+ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+```
+
+### 7. 사용자 가능 시간
+
+```sql
+-- 사용자의 스터디 참여 가능 시간대
+CREATE TABLE `user_available_time`
+(
+    `time_id`     INT PRIMARY KEY AUTO_INCREMENT,       -- 시간 설정 ID
+    `user_id`     INT NOT NULL,                         -- 회원 ID (FK)
+    `day_of_week` ENUM('MON','TUE','WED','THU','FRI','SAT','SUN') NOT NULL, -- 요일
+    `start_time`  TIME NOT NULL,                        -- 시작 시간
+    `end_time`    TIME NOT NULL,                        -- 종료 시간
+    FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
+) COMMENT '사용자 가능 시간'
+ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+```
+
+### 8. 공고 태그
+
+```sql
+-- 스터디 공고에 설정된 태그 매핑
+CREATE TABLE `post_tag`
+(
+    `post_tag_id` INT PRIMARY KEY AUTO_INCREMENT,       -- 공고 태그 ID
+    `post_id`     INT NOT NULL,                         -- 공고 ID (FK)
+    `tag_id`      INT NOT NULL,                         -- 태그 ID (FK)
+    UNIQUE KEY `UQ_post_tag` (`post_id`, `tag_id`),
+    FOREIGN KEY (`post_id`) REFERENCES `study_post` (`post_id`),
+    FOREIGN KEY (`tag_id`) REFERENCES `common_tag` (`tag_id`)
+) COMMENT '공고 태그'
+ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+```
+
+### 9. 스터디 멤버
+
+```sql
+-- 스터디 참여 멤버 및 상태 관리
+CREATE TABLE `study_member`
+(
+    `member_id`         INT PRIMARY KEY AUTO_INCREMENT,     -- 멤버 관리 ID
+    `post_id`           INT NOT NULL,                       -- 공고 ID (FK)
+    `user_id`           INT NOT NULL,                       -- 회원 ID (FK)
+    `role`              ENUM('LEADER','MEMBER') NOT NULL DEFAULT 'MEMBER', -- 역할
+    `status`            ENUM('PENDING','ACCEPTED','REJECTED','WITHDRAWN','KICKED', 'CANCELED') NOT NULL DEFAULT 'PENDING', -- 참여상태
+    `kick_reason`       TEXT NULL,                          -- 강퇴 사유
+    `status_updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 상태변경일
+    `is_hidden`         BOOLEAN NOT NULL DEFAULT FALSE,     -- 거절내역 숨김처리
+    `joined_at`         DATETIME NULL,                      -- 스터디 가입(승인) 일시
+    UNIQUE KEY `UQ_study_member_limit` (`post_id`, `user_id`),
+    FOREIGN KEY (`post_id`) REFERENCES `study_post` (`post_id`),
+    FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
+) COMMENT '스터디 멤버'
+ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+```
+
+### 10. 북마크
+
+```sql
+-- 관심 스터디 저장 내역
+CREATE TABLE `bookmark`
+(
+    `bookmark_id` INT PRIMARY KEY AUTO_INCREMENT,       -- 북마크 ID
+    `user_id`     INT NOT NULL,                         -- 회원 ID (FK)
+    `post_id`     INT NOT NULL,                         -- 공고 ID (FK)
+    UNIQUE KEY `UQ_user_bookmark` (`user_id`, `post_id`),
+    FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`),
+    FOREIGN KEY (`post_id`) REFERENCES `study_post` (`post_id`)
+) COMMENT '북마크'
+ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+```
+
+### 11. 채팅 메시지
+
+```sql
+-- 스터디 그룹 내 실시간 채팅 메시지
+CREATE TABLE `chat_message`
+(
+    `message_id` INT PRIMARY KEY AUTO_INCREMENT,        -- 메시지 ID
+    `post_id`    INT NOT NULL,                          -- 스터디 ID (FK)
+    `sender_id`  INT NOT NULL,                          -- 발신자 ID (FK)
+    `content`    TEXT NOT NULL,                         -- 내용
+    `sent_at`    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 전송시각
+    FOREIGN KEY (`post_id`) REFERENCES `study_post` (`post_id`),
+    FOREIGN KEY (`sender_id`) REFERENCES `user` (`user_id`)
+) COMMENT '채팅 메시지'
+ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+```
+
+### 12. 채팅 읽음 상태
+
+```sql
+-- 메시지별 사용자 읽음 여부 확인
+CREATE TABLE `chat_read_status`
+(
+    `read_id`    INT PRIMARY KEY AUTO_INCREMENT,        -- 읽음 ID
+    `message_id` INT NOT NULL,                          -- 메시지 ID (FK)
+    `user_id`    INT NOT NULL,                          -- 회원 ID (FK)
+    `is_read`    BOOLEAN NOT NULL DEFAULT FALSE,        -- 읽음여부
+    UNIQUE KEY `UQ_chat_read` (`message_id`, `user_id`),
+    FOREIGN KEY (`message_id`) REFERENCES `chat_message` (`message_id`),
+    FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
+) COMMENT '채팅 읽음 상태'
+ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+```
+
+### 13. 동료 평가
+
+```sql
+-- 스터디 종료 후 팀원 상호 평가
+CREATE TABLE `peer_review`
+(
+    `review_id`             INT PRIMARY KEY AUTO_INCREMENT,     -- 평가 ID
+    `post_id`               INT NOT NULL,                       -- 공고 ID (FK)
+    `reviewer_id`           INT NOT NULL,                       -- 평가자 ID (FK)
+    `reviewee_id`           INT NOT NULL,                       -- 피평가자 ID (FK)
+    `contribution_score`    TINYINT NOT NULL DEFAULT 5,         -- 기여도 점수(1-5)
+    `communication_score`   TINYINT NOT NULL DEFAULT 5,         -- 소통 능력 점수(1-5)
+    `time_compliance_score` TINYINT NOT NULL DEFAULT 5,         -- 시간 준수 점수(1-5)
+    `diligence_score`       TINYINT NOT NULL DEFAULT 5,         -- 성실도 점수(1-5)
+    `reviewed_at`           DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 평가일시
+    UNIQUE KEY `UQ_peer_review_limit` (`post_id`, `reviewer_id`, `reviewee_id`),
+    CONSTRAINT `CHK_contribution` CHECK (`contribution_score` BETWEEN 1 AND 5),
+    CONSTRAINT `CHK_communication` CHECK (`communication_score` BETWEEN 1 AND 5),
+    CONSTRAINT `CHK_time_compliance` CHECK (`time_compliance_score` BETWEEN 1 AND 5),
+    CONSTRAINT `CHK_diligence` CHECK (`diligence_score` BETWEEN 1 AND 5),
+    FOREIGN KEY (`post_id`) REFERENCES `study_post` (`post_id`),
+    FOREIGN KEY (`reviewer_id`) REFERENCES `user` (`user_id`),
+    FOREIGN KEY (`reviewee_id`) REFERENCES `user` (`user_id`)
+) COMMENT '동료 평가'
+ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+```
+
+### 14. 사용자 신고
+
+```sql
+-- 악성 사용자 및 게시글 신고 내역
+CREATE TABLE `user_report`
+(
+    `report_id`      INT PRIMARY KEY AUTO_INCREMENT,    -- 신고 ID
+    `reporter_id`    INT NOT NULL,                      -- 신고자 ID (FK)
+    `target_id`      INT NOT NULL,                      -- 피신고자 ID (FK)
+    `reason_type`    ENUM('ABUSE','INSINCERITY','SPAM','INAPPROPRIATE_CONTENT','OTHER') NOT NULL, -- 신고사유
+    `reason_detail`  TEXT NULL,                         -- 상세내용
+    `created_at`     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 신고일시
+    `state`          ENUM('ACCEPT', 'REJECT', 'PROCESSING') NOT NULL DEFAULT 'PROCESSING', -- 신고처리상태
+    `target_post_id` INT NULL,                          -- 신고 대상 공고 ID (FK)
+    UNIQUE KEY `UQ_report_history_with_reason` (`reporter_id`, `target_id`, `reason_type`),
+    UNIQUE KEY `uk_reporter_post` (`reporter_id`, `target_post_id`),
+    FOREIGN KEY (`reporter_id`) REFERENCES `user` (`user_id`),
+    FOREIGN KEY (`target_id`) REFERENCES `user` (`user_id`),
+    FOREIGN KEY (`target_post_id`) REFERENCES `study_post` (`post_id`)
+) COMMENT '사용자 신고'
+ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+```
+
+
