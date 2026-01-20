@@ -1002,6 +1002,222 @@ CALL deleteAvailableTime(21, 'MON');
 ![image](이용호/USER_07/deleteAvailableTime.png)
 <br>
 </details>
+
+<details>
+<summary>1-8. 회원정보 수정</summary>
+
+```sql
+DELIMITER $$
+
+CREATE OR REPLACE PROCEDURE updateUserProfile(
+    IN p_user_id        INT,
+    IN p_city_name      VARCHAR(50),
+    IN p_new_nickname   VARCHAR(50)
+)
+BEGIN
+	 DECLARE v_region_id INT;
+    DECLARE v_last_nick_changed_at DATE;
+
+    UPDATE `user`
+    SET region_id = (SELECT region_id FROM common_region WHERE city = p_city_name)
+    WHERE user_id = p_user_id;
+    
+    -- 2) 닉네임 변경 제한 (p_new_nickname이 NULL이 아니면 변경 시도)
+    IF p_new_nickname IS NOT NULL THEN
+
+        -- 닉네임 중복 체크
+        IF EXISTS (
+            SELECT 1 FROM `user`
+            WHERE nickname = p_new_nickname
+              AND user_id != p_user_id
+        ) THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '이미 존재하는 닉네임입니다.';
+        END IF;
+
+        -- 마지막 닉네임 변경일 조회
+        SELECT last_nickname_update INTO v_last_nick_changed_at
+        FROM `user`
+        WHERE user_id = p_user_id;
+
+        -- 30일 제한 (NULL이면 제한 없이 최초 변경 허용)
+        IF v_last_nick_changed_at IS NOT NULL
+           AND DATEDIFF(CURDATE(), v_last_nick_changed_at) < 30 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '닉네임은 30일마다 변경할 수 있습니다.';
+        END IF;
+
+        UPDATE `user`
+        SET nickname = p_new_nickname,
+            last_nickname_update = CURDATE()
+        WHERE user_id = p_user_id;
+
+    END IF;
+
+END$$
+
+DELIMITER ;
+
+CALL updateUserProfile(1, '서울', 'changeTest');
+```
+
+![image](이용호/USER_08/updateUserProfile.png)
+
+![image](이용호/USER_08/Error.png)
+</details>
+
+<details>
+<summary>1-9. 회원 상세 정보 조회</summary>
+
+```sql
+DELIMITER $$
+
+CREATE OR REPLACE PROCEDURE getUserDetail(
+    IN p_user_id INT
+)
+BEGIN
+    DECLARE v_available_time TEXT;
+    DECLARE v_tech_stack TEXT;
+    DECLARE v_study_history TEXT;
+
+    SELECT GROUP_CONCAT(
+               CONCAT(day_of_week, ' ',
+                   TIME_FORMAT(start_time, '%H:%i'),'-', TIME_FORMAT(end_time, '%H:%i'))
+               ORDER BY FIELD(day_of_week,'MON','TUE','WED','THU','FRI','SAT','SUN'), start_time
+               SEPARATOR ', '
+           ) INTO v_available_time
+    FROM user_available_time
+    WHERE user_id = p_user_id;
+
+    SELECT GROUP_CONCAT(
+               CONCAT(ct.tag_type, ' - ', ct.tag_name)
+               ORDER BY ct.tag_type, ct.tag_name
+               SEPARATOR ', '
+           ) INTO v_tech_stack
+    FROM user_tech_stack uts
+    JOIN common_tag ct ON uts.tag_id = ct.tag_id
+    WHERE uts.user_id = p_user_id;
+
+    SELECT
+        u.email AS 이메일,
+        u.nickname AS 닉네임,
+		  u.completed_studies AS '완수 스터디 횟수', 
+        u.penalty_count AS '패널티 횟수',
+        u.reliability_score AS '신뢰지수',
+        IFNULL(v_available_time, '-') AS '협업 가능 시간',
+        IFNULL(v_tech_stack, '-')     AS '핵심 기술'
+    FROM user u
+    WHERE u.user_id = p_user_id;
+
+END$$
+
+DELIMITER ;
+
+CALL getUserDetail(1);
+```
+
+![image](이용호/USER_09/getUserDetail.png)
+<br>
+</details>
+
+<details>
+<summary>1-10. 이메일 찾기</summary>
+
+```sql
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE findEmail(
+    IN p_userPhone VARCHAR(100) COLLATE utf8mb4_general_ci
+)
+BEGIN
+	SELECT email
+	FROM `user`
+	WHERE phone = p_userPhone;
+END$$
+DELIMITER ;
+
+CALL findEmail('010-2000-0001');
+```
+
+![image](이용호/USER_10/findEmail.png)
+<br>
+</details>
+
+<details>
+<summary>1-11. 비밀번호 찾기</summary>
+
+```sql
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE findPw(
+	 IN p_userEmail VARCHAR(100),
+    IN p_userPhone VARCHAR(20)
+)
+BEGIN
+	SELECT email, pw
+	FROM `user`
+	WHERE phone = p_userPhone AND email = p_userEmail;
+END$$
+DELIMITER ;
+
+CALL findPw('minsu1@test.com', '010-2000-0001');
+```
+
+![image](이용호/USER_11/findPw.png)
+<br>
+</details>
+
+<details>
+<summary>1-12. 회원 탈퇴</summary>
+
+```sql
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE withdrawn(
+    IN p_user_id INT
+)
+BEGIN
+	 DECLARE is_participating TINYINT;
+	 DECLARE withdrawn_user_id INT;
+	 
+	 SELECT
+        IF (
+            EXISTS (
+                SELECT 1
+                FROM user u
+                JOIN study_member sm ON u.user_id = sm.user_id
+                JOIN study_post sp ON sm.post_id = sp.post_id
+                WHERE sm.`status` = 'ACCEPTED'
+                  AND sp.post_status IN ('RECRUITING', 'IN_PROGRESS')
+                  AND u.user_id = p_user_id
+            ),
+            0,  -- 불가능
+            1   -- 가능
+        )
+    INTO is_participating;
+
+    IF is_participating = 1 THEN
+    	SELECT '탈퇴 처리' AS result, email FROM user WHERE user_id = p_user_id;
+    	
+    	UPDATE user SET `status` = 'WITHDRAWN' WHERE user_id = p_user_id;
+    	
+    	DELETE FROM bookmark WHERE user_id = p_user_id;
+		DELETE FROM user_tech_stack WHERE user_id = p_user_id;
+		DELETE FROM user_available_time WHERE user_id = p_user_id;
+	 ELSE
+    	SELECT '탈퇴 불가' AS result, email FROM user WHERE user_id = p_user_id;
+	 END IF;
+END$$
+DELIMITER ;
+
+CALL withdrawn(7);
+
+CALL withdrawn(1);
+
+SELECT user_id, email, `status` FROM user WHERE user_id = 7;
+```
+
+![image](이용호/USER_12/withdraw_success.png)
+
+![image](이용호/USER_12/withdraw_fail.png)
+
+![image](이용호/USER_12/user_status.png)
+</details>
 	
 ### 🕵️ 2. 상호작용 및 커뮤니케이션
 <details>
