@@ -1,4 +1,4 @@
-# be25-1st-5team-project
+# be25-1st-Linker-FitStudy
 <p align="center">
   <img src="./image/logo.png" width="400" alt="Project Logo" />
 </p>
