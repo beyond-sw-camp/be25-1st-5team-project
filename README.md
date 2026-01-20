@@ -970,7 +970,7 @@ CALL update_study_post(2, 2, '제목 입력 ...', '상세 내용 입력 ...', 'O
 - 스터디 공고 멤버는 수정 못함
 ![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_003/%EC%8A%A4%ED%84%B0%EB%94%94%20%EA%B3%B5%EA%B3%A0%20%EB%A9%A4%EB%B2%84%EB%8A%94%20%EC%88%98%EC%A0%95%20%EB%AA%BB%ED%95%A8.png?raw=true)
 
--스터디 공고를 리더는 수정 가능
+- 스터디 공고를 리더는 수정 가능
 ![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_003/%EC%8A%A4%ED%84%B0%EB%94%94%20%EA%B3%B5%EA%B3%A0%20%EB%A6%AC%EB%8D%94%EB%8A%94%20%EC%88%98%EC%A0%95%20%EA%B0%80%EB%8A%A5.png?raw=true)
 
 
