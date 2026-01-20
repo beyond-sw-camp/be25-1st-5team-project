@@ -170,7 +170,8 @@
 ![아키텍처 이미지]([아키텍처 이미지 URL])
 
 ### 📌 Schema DDL
-
+<details>
+  
 ### 1. 공통 지역 코드
 
 ```sql
@@ -438,4 +439,5 @@ CREATE TABLE `user_report`
 ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 ```
 
+</details>
 
