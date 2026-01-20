@@ -1633,7 +1633,7 @@ WHERE report_id = 1; -- 예시 ID
 </details>
 
 <details> 
-<summary>6-4. [프로시저] 신고 처리</summary>
+<summary>6-4. 신고 처리</summary>
 <br>
 
 ```sql
