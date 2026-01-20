@@ -171,7 +171,7 @@
 
 ### 📌 Schema DDL
 <details>
-  
+<summary>DDL</summary>  
 ### 1. 공통 지역 코드
 
 ```sql
@@ -439,5 +439,88 @@ CREATE TABLE `user_report`
 ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 ```
 
+### 15. FK 설정
+
+```sql
+-- 악성 사용자 및 게시글 신고 내역
+-- User FK
+ALTER TABLE `user`
+  ADD CONSTRAINT `FK_common_region_TO_user`
+  FOREIGN KEY (`region_id`) REFERENCES `common_region` (`region_id`);
+
+-- Study Post FK
+ALTER TABLE `study_post`
+  ADD CONSTRAINT `FK_common_region_TO_study_post`
+  FOREIGN KEY (`region_id`) REFERENCES `common_region` (`region_id`),
+  ADD CONSTRAINT `FK_user_TO_study_post`
+  FOREIGN KEY (`leader_id`) REFERENCES `user` (`user_id`);
+
+-- Bookmark FK
+ALTER TABLE `bookmark`
+  ADD CONSTRAINT `FK_user_TO_bookmark`
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`),
+  ADD CONSTRAINT `FK_study_post_TO_bookmark`
+  FOREIGN KEY (`post_id`) REFERENCES `study_post` (`post_id`);
+
+-- Chat Message FK
+ALTER TABLE `chat_message`
+  ADD CONSTRAINT `FK_study_post_TO_chat_message`
+  FOREIGN KEY (`post_id`) REFERENCES `study_post` (`post_id`),
+  ADD CONSTRAINT `FK_user_TO_chat_message`
+  FOREIGN KEY (`sender_id`) REFERENCES `user` (`user_id`);
+
+-- Chat Read Status FK
+ALTER TABLE `chat_read_status`
+  ADD CONSTRAINT `FK_chat_message_TO_chat_read_status`
+  FOREIGN KEY (`message_id`) REFERENCES `chat_message` (`message_id`),
+  ADD CONSTRAINT `FK_user_TO_chat_read_status`
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`);
+
+-- Peer Review FK
+ALTER TABLE `peer_review`
+  ADD CONSTRAINT `FK_study_post_TO_peer_review`
+  FOREIGN KEY (`post_id`) REFERENCES `study_post` (`post_id`),
+  ADD CONSTRAINT `FK_user_TO_peer_review_reviewer`
+  FOREIGN KEY (`reviewer_id`) REFERENCES `user` (`user_id`),
+  ADD CONSTRAINT `FK_user_TO_peer_review_reviewee`
+  FOREIGN KEY (`reviewee_id`) REFERENCES `user` (`user_id`);
+
+-- Post Tag FK
+ALTER TABLE `post_tag`
+  ADD CONSTRAINT `FK_study_post_TO_post_tag`
+  FOREIGN KEY (`post_id`) REFERENCES `study_post` (`post_id`),
+  ADD CONSTRAINT `FK_common_tag_TO_post_tag`
+  FOREIGN KEY (`tag_id`) REFERENCES `common_tag` (`tag_id`);
+
+-- Study Member FK
+ALTER TABLE `study_member`
+  ADD CONSTRAINT `FK_study_post_TO_study_member`
+  FOREIGN KEY (`post_id`) REFERENCES `study_post` (`post_id`),
+  ADD CONSTRAINT `FK_user_TO_study_member`
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`);
+
+-- User Available Time FK
+ALTER TABLE `user_available_time`
+  ADD CONSTRAINT `FK_user_TO_user_available_time`
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`);
+
+-- User Report FK
+ALTER TABLE `user_report`
+  ADD CONSTRAINT `FK_user_TO_user_report_reporter`
+  FOREIGN KEY (`reporter_id`) REFERENCES `user` (`user_id`),
+  ADD CONSTRAINT `FK_user_TO_user_report_target`
+  FOREIGN KEY (`target_id`) REFERENCES `user` (`user_id`),
+  ADD CONSTRAINT `FK_study_post_TO_user_report`
+  FOREIGN KEY (`target_post_id`) REFERENCES `study_post` (`post_id`);
+
+-- User Tech Stack FK
+ALTER TABLE `user_tech_stack`
+  ADD CONSTRAINT `FK_user_TO_user_tech_stack`
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`),
+  ADD CONSTRAINT `FK_common_tag_TO_user_tech_stack`
+  FOREIGN KEY (`tag_id`) REFERENCES `common_tag` (`tag_id`);
+
+```
+</details>
 </details>
 
