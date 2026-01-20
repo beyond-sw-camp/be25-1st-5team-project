@@ -1110,6 +1110,7 @@ CALL deleteBookmarkProc(1, 5);
 
 <details>
 <summary>2. 장애 복구 테스트</summary>
+
 ![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/default_status.png?raw=true)
 - 기본 데이터베이스 상태
 
