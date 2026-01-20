@@ -126,7 +126,7 @@
 
 <img src="./image/WBS.jpg" width="1000" alt="Project Logo" />
 
-- [📂 일정표 자세히 보기 (링크)](https://docs.google.com/spreadsheets/d/1Q1jzi_nl8RFUq_z4TsBLuJ0TAfOchFgY/edit?gid=153074575#gid=153074575)
+- [📂 프로젝트 진행 일정 (WBS) 자세히 보기 (링크)](https://docs.google.com/spreadsheets/d/1Q1jzi_nl8RFUq_z4TsBLuJ0TAfOchFgY/edit?gid=153074575#gid=153074575)
 
 ---
 
@@ -134,9 +134,9 @@
 
 ### 🧾 요구사항 정의서
 <p align="center">
-  <img src="./image/requirements.jpg" width="175%" alt="요구사항 정의서 미리보기" />
+  <img src="./image/requirements.jpg" width="100%" alt="요구사항 정의서 미리보기" />
 </p>
-- [📂 요구사항 정의서 링크](https://docs.google.com/spreadsheets/d/1Q1jzi_nl8RFUq_z4TsBLuJ0TAfOchFgY/edit?pli=1&gid=594161354#gid=594161354)</br>
+- [📂 요구사항 정의서 (링크)](https://docs.google.com/spreadsheets/d/1Q1jzi_nl8RFUq_z4TsBLuJ0TAfOchFgY/edit?pli=1&gid=594161354#gid=594161354)
 
 ### ✅ 요구사항
 - 사용자 계정 생성, 로그인, 정보 수정 및 탈퇴 (블랙리스트 대조 포함)
