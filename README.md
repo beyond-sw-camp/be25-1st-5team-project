@@ -977,7 +977,7 @@ CALL update_study_post(2, 2, '제목 입력 ...', '상세 내용 입력 ...', 'O
 </details>
 
 <details>
-<summary>4.4 팀원 내보내기</summary>
+<summary>4-4 팀원 내보내기</summary>
 
 ```sql
 -- ===================== LEADER_004 =====================
@@ -1028,30 +1028,148 @@ DELIMITER ;
 </details>
 
 <details>
-<summary>1-1. 회원가입</summary>
+<summary>4-5, 4-6. 참여 요청 관리 (승낙/거절)</summary>
 
 ```sql
+-- ===================== LEADER_005, LEADER_006 =====================
+-- pending인 사람들 리더가 accept나 reject로 바꿈
+DELIMITER $$
+CREATE PROCEDURE `update_member_status`(
+    IN p_post_id      INT,          -- 스터디 공고 ID
+    IN p_requester_id INT,          -- 요청자 ID (리더인지 검증할 ID)
+    IN p_target_id    INT,          -- 상태를 변경할 대상 회원 ID
+    IN p_new_status   VARCHAR(20)   -- 변경할 상태 ('REJECTED', 'ACCEPTED' 등)
+)
+BEGIN
+    -- 1. 업데이트 수행 (리더 권한 체크 포함)
+    UPDATE study_member sm
+    JOIN study_post sp ON sm.post_id = sp.post_id
+    SET sm.status = p_new_status,
+        sm.status_updated_at = NOW()
+    WHERE sm.post_id = p_post_id
+      AND sm.user_id = p_target_id   -- 변경 대상
+      AND sp.leader_id = p_requester_id; -- 요청자가 리더여야만 실행됨
 
+    -- 2. 결과 반환
+    SELECT post_id, 
+		 user_id, 
+		 `role`, 
+		 `status`,
+		 status_updated_at
+	 FROM study_member
+	 WHERE post_id = p_post_id;
+END$$
+DELIMITER ;
+
+-- 리더5가 유저2를 ACCEPTED함 성공
+CALL sp_update_member_status(4, 5, 2, 'ACCEPTED');
+
+-- 멤버3이 유저2를 ACCEPTED함 실패
+CALL sp_update_member_status(4, 3, 2, 'ACCEPTED');
+
+-- 리더 3이 멤버 6을 rejected함 성공
+CALL sp_update_member_status(2, 3, 6, 'REJECTED');
+
+-- 멤버 5가 유저 6을 rejeced함 실패 
+CALL sp_update_member_status(2, 5, 6, 'REJECTED');
 ```
-
+- 스터디 공고 상태확인
 ![image](https://github.com/user-attachments/assets/52e81b9c-1b90-476a-8cc7-80646a1d90a7)
 
-![image](https://github.com/user-attachments/assets/6cdbac9e-3874-4734-bd78-97c28114ce1a)
+- 멤버면 ACCEPTED로 변경 불가능함
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_005/%EB%A9%A4%EB%B2%84%EB%A9%B4%20ACCEPTED%20%EB%A1%9C%20%EB%AA%BB%EB%B0%94%EA%BF%88.png?raw=true)
 
+- 리더면 ACCEPTED로 변경 가능함
+![image]([https://github.com/user-attachments/assets/6cdbac9e-3874-4734-bd78-97c28114ce1a](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_005/%EB%A6%AC%EB%8D%94%EB%A9%B4%20ACCEPTED%20%EB%B3%80%EA%B2%BD%20%EA%B0%80%EB%8A%A5.png?raw=true))
+
+- 멤버면 REJECTED로 변경 불가능함
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_006/%EB%A6%AC%EB%8D%94%20%EC%95%84%EB%8B%88%EB%9D%BC%EC%84%9C%20%EC%83%81%ED%83%9C%EC%97%85%EB%8E%83%20%EC%95%88%EB%90%A8.png?raw=true)
+
+- 리더면 REJECTED로 변경 가능함
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_006/%EB%A6%AC%EB%8D%94%EB%A1%9C%20%EB%B0%94%EA%BE%B8%EB%A9%B4%20%EC%83%81%ED%83%9C%EC%97%85%EB%8E%83%EB%90%A8.png?raw=true)
 
 </details>
 
 <details>
-<summary>1-1. 회원가입</summary>
+<summary>4-7. 팀장 위임</summary>
 
 ```sql
+-- ===================== LEADER_007 =====================
+-- 팀장이 공고가 시작 된 후 나가는 경우
+-- 점수가 높은사람 순, 동률일 경우 먼저 들어온 순 으로 방장위임됨
+-- 혹은 팀장이 팀원을 차기 팀장으로 지목 가능
 
+DELIMITER $$
+CREATE PROCEDURE `change_withdraw_leader`(
+    IN p_post_id INT,        -- 공고 ID
+    IN withdraw_leader_id INT, -- 탈퇴하는 팀장 ID
+    IN next_leader_id INT  -- 후계자 ID (없으면 NULL)
+)
+BEGIN
+    DECLARE is_leader INT;
+    DECLARE final_leader_id INT;
+
+    -- 1. 탈퇴하려는 사람이 팀장인지 확인
+    SELECT COUNT(*) INTO is_leader
+    FROM study_member
+    WHERE post_id = p_post_id 
+      AND user_id = withdraw_leader_id 
+      AND role = 'LEADER';
+
+    -- 2. 리더 본인 탈퇴 처리(멤버로 강등된 후 WITHDRAWN로 상태변경)
+    UPDATE study_member 
+    SET status = 'WITHDRAWN', status_updated_at = NOW(), role = 'MEMBER'
+    WHERE post_id = p_post_id AND user_id = withdraw_leader_id;
+
+    -- 3. 팀장이 나가는 경우에만 위임 로직 실행
+    IF is_leader > 0 THEN
+        -- 3-1. 사용자가 후계자를 지목한 경우 3-1-1, 아닌 경우 3-1-2
+        IF next_leader_id IS NOT NULL THEN
+            -- 3-1-1. 수동 위임: 입력받은 사람(next_leader_id)을 선택
+            SET final_leader_id = next_leader_id;
+            
+        ELSE
+            -- 3-1-2. 자동 위임: 신뢰도 1등 찾기
+            SELECT u.user_id INTO final_leader_id
+            FROM study_member sm
+            JOIN user u ON sm.user_id = u.user_id
+            WHERE sm.post_id = p_post_id 
+              AND sm.status = 'ACCEPTED'
+              AND sm.user_id != withdraw_leader_id
+            ORDER BY u.reliability_score DESC, sm.joined_at ASC
+            LIMIT 1;
+        END IF;
+
+        -- 4. 리더 변경 및 공고 업데이트
+        IF final_leader_id IS NOT NULL THEN
+            -- 멤버 직책 변경
+            UPDATE study_member 
+            SET role = 'LEADER'
+            WHERE post_id = p_post_id AND user_id = final_leader_id;
+
+            -- 공고 대표자 변경
+            UPDATE study_post 
+            SET leader_id = final_leader_id
+            WHERE post_id = p_post_id;
+        END IF;
+    END IF;
+END$$
+DELIMITER ;
+
+-- 2번 스터디, 3번 팀장 탈퇴, 후계자는 자동 선정(NULL)
+CALL change_withdraw_leader(2, 3, NULL);
+
+-- 2번 스터디, 3번 팀장 탈퇴, 후계자는 4번 유저 지정
+CALL change_withdraw_leader(2, 3, 4);
 ```
+- 프로시저 생성 전 팀장이 나간 경우 WITHDRAWED 상태, 팀장 위임 안됨
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_007/%ED%94%84%EB%A1%9C%EC%8B%9C%EC%A0%80%20%EC%83%9D%EC%84%B1%EC%A0%84/%ED%8C%80%EC%9E%A5%EC%9D%B4%20WITHDRAWED%20%EC%83%81%ED%83%9C%EB%A1%9C%20%EA%B3%84%EC%86%8D%20%EB%82%A8%EC%95%84%EC%9E%88%EC%9D%8C,%20%ED%8C%80%EC%9E%A5%EC%9D%B8%20%EC%83%81%ED%83%9C%20%EA%B7%B8%EB%8C%80%EB%A1%9C%EC%9E%84.png?raw=true)
 
-![image](https://github.com/user-attachments/assets/52e81b9c-1b90-476a-8cc7-80646a1d90a7)
+- 프로시저 생성 후 팀장이 위임 없이 나간 경우 신뢰도 높은 사람에게 위임
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_007/%ED%94%84%EB%A1%9C%EC%8B%9C%EC%A0%80%20%EC%83%9D%EC%84%B1%ED%9B%84/%ED%8C%80%EC%9E%A5%EC%9D%B4%20%EC%9C%84%EC%9E%84%EC%97%86%EC%9D%B4%20%EB%82%98%EA%B0%84%20%EA%B2%BD%EC%9A%B0%20%EC%8B%A0%EB%A2%B0%EB%8F%84%20%EA%B0%80%EC%9E%A5%20%EB%86%92%EC%9D%80%20%EC%82%AC%EB%9E%8C%ED%95%9C%ED%85%8C%20%EC%9C%84%EC%9E%84.png?raw=true)
 
-![image](https://github.com/user-attachments/assets/6cdbac9e-3874-4734-bd78-97c28114ce1a)
-
+- 프로시저 생성 후 팀장이 4번 유저에게 위임후 나감
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_007/%ED%94%84%EB%A1%9C%EC%8B%9C%EC%A0%80%20%EC%83%9D%EC%84%B1%ED%9B%84/%ED%8C%80%EC%9E%A5%EC%9D%B4%204%EB%B2%88%20%EC%9C%A0%EC%A0%80%EC%97%90%EA%B2%8C%20%EC%9C%84%EC%9E%84%ED%9B%84%20%EB%82%98%EA%B0%90.png?raw=true)
 
 </details>
 
