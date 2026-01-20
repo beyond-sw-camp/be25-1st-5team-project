@@ -1,4 +1,3 @@
-<img width="1115" height="170" alt="image" src="https://github.com/user-attachments/assets/01579198-d70f-406a-a1d9-0471be51a045" /># be25-1st-Linker-FitStudy
 <p align="center">
   <img src="./image/logo.png" width="400" alt="Project Logo" />
 </p>
@@ -46,14 +45,14 @@
   <img src="https://capsule-render.vercel.app/api?type=soft&color=auto&height=80&section=footer&text=Team%20Linker&fontSize=40&fontColor=ffffff&animation=fadeIn" />
 </p>
 
-| <img src="./image/zootopia_nibbles.png" width="150"><br>**이다윗** | <img src="image/member_kimdasom.jpg" width="150"><br>**김다솜** | <img src="[팀원3 이미지 URL]" width="150"><br>**이애은** |
+| <img src="./image/zootopia_nibbles.png" width="150"><br>**이다윗** | <img src="김다솜/profile.jpg" width="150"><br>**김다솜** | <img src="image/member_leeaeeun.png" width="150"><br>**이애은** |
 | :---: | :---: | :---: |
 | **팀장 / 운영 및 제재 관리** | **팀원 / 상호작용 및 커뮤니케이션** | **팀원 / 스터디 탐색 및 조회** |
-| <a href="https://github.com/Dawit-lee"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> | <a href="https://github.com/Myang09"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> | <a href="[깃허브 주소]"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> |
+| <a href="https://github.com/Dawit-lee"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> | <a href="https://github.com/Myang09"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> | <a href="https://github.com/nueeaeel"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> |
 
 <br>
 
-| <img src="./image/zootopia_rat.png" width="150"><br>**윤정윤** | <img src="[팀원5 이미지 URL]" width="150"><br>**이용호** | <img src="[팀원6 이미지 URL]" width="150"><br>**박재하** |
+| <img src="./image/zootopia_rat.png" width="150"><br>**윤정윤** | <img src="[팀원5 이미지 URL]" width="150"><br>**이용호** | <img src="박재하/profile_P.jpg" width="150"><br>**박재하** |
 | :---: | :---: | :---: |
 | **팀원 / 마이페이지 및 개인화** | **팀원 /  회원 기초 및 인증** | **팀원 / 스터디 관리 및 리더 기능** |
 | <a href="https://github.com/penep0"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> | <a href="[깃허브 주소]"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> | <a href="https://github.com/horolo1234"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" /></a> |
@@ -169,9 +168,6 @@
 
 ### 📋 테이블 명세
 - [📂 테이블 명세서 링크](https://docs.google.com/spreadsheets/d/1Q1jzi_nl8RFUq_z4TsBLuJ0TAfOchFgY/edit?gid=724605003#gid=724605003)
-
-### 📌 아키텍처
-<img src="./image/Web_App_Reference_Architecture_1.webp" width="1000" alt="ERD image" />
 
 ### 📌 Schema DDL
 <details>
@@ -796,19 +792,114 @@ VALUES
 
 </details>
 
-### 👤 2. 김다솜
+### 👤 2. 상호작용 및 커뮤니케이션 (Interaction) 
 <details>
-<summary>1-1. 회원가입</summary>
+<summary>2-1. 회원 신고</summary>
+</details>
+
+<details>
+<summary>2-2. 게시글 신고</summary>
+</details>
+
+<details>
+<summary>2-3. 신뢰점수 계산 후 유저 테이블 반영</summary>
 
 ```sql
+CREATE TRIGGER trg_update_reliability_score
+AFTER INSERT ON peer_review
+FOR EACH ROW
+BEGIN
+    DECLARE avg_score DECIMAL(2,1);
+
+    SELECT ROUND(
+        AVG(
+            (contribution_score
+           + communication_score
+           + time_compliance_score
+           + diligence_score) / 4.0
+        ),1)
+    INTO avg_score
+    FROM peer_review
+    WHERE reviewee_id = NEW.reviewee_id;
+
+    UPDATE user
+    SET reliability_score = avg_score
+    WHERE user_id = NEW.reviewee_id;
+END$$
+
+DELIMITER ;
+```
+</details> 
+
+
+<details>
+<summary>2-4. 스터디 미완수 시 평가 불가능 </summary>
+
+``` sql
+DELIMITER $$
+  
+CREATE TRIGGER trg_block_review_if_not_completed
+BEFORE INSERT ON peer_review
+FOR EACH ROW
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM study_post
+        WHERE post_id = NEW.post_id
+          AND post_status = 'COMPLETED'
+    ) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '스터디가 완료된 후에만 평가할 수 있습니다.';
+    END IF;
+END$$
 
 ```
+</details>
 
-![image](https://github.com/user-attachments/assets/52e81b9c-1b90-476a-8cc7-80646a1d90a7)
+<details>
+<summary>2-5. 채팅 읽은 사람 수 카운트</summary>
 
-![image](https://github.com/user-attachments/assets/6cdbac9e-3874-4734-bd78-97c28114ce1a)
+```sql
+SELECT COUNT(*) AS count_member
+FROM chat_read_status
+WHERE message_id = 1 AND is_read = 1;
+```
+</details>
+<details>
+<summary> 2-6. 채팅 전체 조회 </summary>
 
 
+```sql
+DELIMITER $$
+
+CREATE OR REPLACE PROCEDURE get_chat_messages (
+    IN p_post_id INT
+)
+BEGIN
+    SELECT
+        cm.message_id,
+        cm.sender_id,
+        u.nickname,
+        cm.content,
+        cm.sent_at,
+
+        (
+            SELECT COUNT(*)
+            FROM chat_read_status crs
+            WHERE crs.message_id = cm.message_id
+              AND crs.is_read = 1 
+        ) AS read_count
+
+    FROM chat_message cm
+    JOIN user u
+        ON cm.sender_id = u.user_id 
+    WHERE cm.post_id = p_post_id
+    ORDER BY cm.sent_at DESC;
+END$$
+
+DELIMITER ;
+
+```
 </details>
 
 ### 👤 3. 이애은
@@ -1080,7 +1171,7 @@ CALL sp_update_member_status(2, 5, 6, 'REJECTED');
 - 리더면 ACCEPTED로 변경 가능함
 ![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_005/%EB%A6%AC%EB%8D%94%EB%A9%B4%20ACCEPTED%20%EB%B3%80%EA%B2%BD%20%EA%B0%80%EB%8A%A5.png?raw=true)
 
-- 멤버는 REJECTED로 변경 불가함
+- 멤버면 REJECTED로 변경 불가능
 ![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_006/%EB%A6%AC%EB%8D%94%20%EC%95%84%EB%8B%88%EB%9D%BC%EC%84%9C%20%EC%83%81%ED%83%9C%EC%97%85%EB%8E%83%20%EC%95%88%EB%90%A8.png?raw=true)
 
 - 리더면 REJECTED로 변경 가능함</br>
@@ -1239,18 +1330,123 @@ VALUES (2, 4, 'MEMBER', 'PENDING');
 </details>
 
 
-### 👤 5. 윤정윤
+### 👤 5. 유저 스터디 현황 조회 및 북마크 관리
 <details>
-<summary>1-1. 회원가입</summary>
+<summary>5-1. 유저 스터디 참여 현황 조회</summary>
 
 ```sql
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE studyStatusProc(
+    IN p_userId INT,
+    IN p_studyStatus VARCHAR(20)
+)
+BEGIN
+    SELECT
+        sp.post_id,
+        sp.title,
+        sm.status AS '상태',
+        sm.user_id
+    FROM study_member sm
+             JOIN study_post sp ON sp.post_id = sm.post_id
+    WHERE sm.user_id = p_userId
+      AND (
+        p_studyStatus IS NULL
+            OR sm.status = p_studyStatus
+        );
+END$$
+DELIMITER ;
 
+CALL studyStatusProc(10, 'PENDING');
 ```
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/USER_013/USER_013_result.png?raw=true)
 
-![image](https://github.com/user-attachments/assets/52e81b9c-1b90-476a-8cc7-80646a1d90a7)
+</details>
 
-![image](https://github.com/user-attachments/assets/6cdbac9e-3874-4734-bd78-97c28114ce1a)
+<details>
+<summary>5-2. 거절된 스터디 내역 삭제</summary>
 
+```sql
+-- '거절됨' 스터디 내역 삭제
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE deleteStudyRecordProc(
+    IN userId INT,
+    IN postId INT
+)
+BEGIN
+    DELETE FROM study_member
+    WHERE user_id = userId AND post_id = postId AND status = 'REJECTED';
+END$$
+DELIMITER ;
+
+CALL deleteStudyRecordProc(1, 3);
+```
+</details>
+
+<details>
+<summary>5-3. 북마크 등록</summary>
+
+```sql
+-- 로그인된 아이디와 게시물 아이디를 통해 북마크 등록
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE createBookmarkProc(
+    IN userId INT,
+    IN postId INT
+)
+BEGIN
+    DECLARE CONTINUE HANDLER FOR 1062
+        SELECT '이미 존재하는 북마크 입니다.' AS result;
+
+    INSERT INTO bookmark(user_id, post_id)
+    VALUES (userId, postId);
+END$$
+DELIMITER ;
+
+CALL createBookmarkProc(1, 5);
+```
+</details>
+
+<details>
+<summary>5-4. 북마크 조회</summary>
+
+```sql
+-- 로그인된 아이디를 통해 북마크 목록 조회
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE showBookmarkProc(
+    IN userId INT
+)
+BEGIN
+    SELECT bookmark.*,
+           sp.title
+    FROM bookmark
+             LEFT OUTER JOIN study_post sp ON bookmark.post_id = sp.post_id
+    WHERE user_id = userId;
+END$$
+DELIMITER ;
+
+CALL showBookmarkProc(1);
+```
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/USER_016/USER_016_result.png?raw=true)
+
+</details>
+
+<details>
+<summary>5-5. 북마크 해제</summary>
+
+```sql
+-- 로그인된 아이디와 게시물 아이디를 통해 북마크 해제
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE deleteBookmarkProc(
+    IN userId INT,
+    IN postId INT
+)
+BEGIN
+    DELETE FROM bookmark
+    WHERE user_id = userId AND post_id = postId;
+END$$
+DELIMITER ;
+
+CALL deleteBookmarkProc(1, 5);
+```
 
 </details>
 
@@ -1269,6 +1465,39 @@ VALUES (2, 4, 'MEMBER', 'PENDING');
 
 </details>
 
+### 📌 아키텍처
+<img src="./image/Web_App_Reference_Architecture_1.webp" width="1000" alt="ERD image" />
+
+
+### 🔍 테스트
+<details>
+<summary>1. 쿼리 분기 테스트</summary>
+
+- 분기 테스트용 쿼리 -> ProxySQL(6033)
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/test_result/routing_test_query.png?raw=true)
+
+- 쿼리 분기 결과 조회 -> 6032(admin)  hostgroup 10 = master, hostgroup 20 = slave
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/test_result/query%20routing_result.png?raw=true)
+
+</details>
+
+<details>
+<summary>2. 장애 복구 테스트</summary>
+
+- 기본 데이터베이스 상태
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/default_status.png?raw=true)
+
+- Master DB 장애 이후 Slave DB를 Mater로 승격
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/replica_to_master.png?raw=true)
+
+- Mater 서버 복구 후 DB role 정상화
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/return_master.png?raw=true)
+</details>
+
+<details>
+<summary>3. 쿼리 튜닝 테스트</summary>
+
+</details>
 ## 회고록
 
 ---
