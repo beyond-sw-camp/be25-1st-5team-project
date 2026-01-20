@@ -1,4 +1,4 @@
-# be25-1st-Linker-FitStudy
+<img width="1115" height="170" alt="image" src="https://github.com/user-attachments/assets/01579198-d70f-406a-a1d9-0471be51a045" /># be25-1st-Linker-FitStudy
 <p align="center">
   <img src="./image/logo.png" width="400" alt="Project Logo" />
 </p>
@@ -828,7 +828,7 @@ VALUES
 
 ### 👑 4. 스터디 관리 및 리더 기능 (Management) 
 <details>
-<summary>4-1. 회원가입</summary>
+<summary>4-1. 스터디 모집글 작성</summary>
 
 ```sql
 -- ===================== LEADER_001 =====================
@@ -862,25 +862,63 @@ VALUES
     '2026-06-01 00:00:00'  -- 예상 종료일시
 );
 ```
--공고 생성
+- 공고 생성
 ![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_001/%EA%B3%B5%EA%B3%A0%20%EC%83%9D%EC%84%B1%20%ED%99%95%EC%9D%B8.png?raw=true)
 
-
+- 공고 생성시 리더 아이디로 자동 승격
 ![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_001/%EA%B3%B5%EA%B3%A0%20%EC%83%9D%EC%84%B1%EC%8B%9C%20%EB%A6%AC%EB%8D%94%20%EC%95%84%EC%9D%B4%EB%94%94%EB%A1%9C%20%EC%9E%90%EB%8F%99%20%EC%8A%B9%EA%B2%A9%20%ED%99%95%EC%9D%B8.png?raw=true)
 
 
 </details>
 
 <details>
-<summary>1. 스터디 모집글 작성</summary>
+<summary>4-2. 스터디 모집글 삭제</summary>
 
 ```sql
+-- ===================== LEADER_002 =====================
+-- 팀장이 공고를 삭제하기 위해서는 참조하는 다른 자식 테이블을 먼저 삭제해야함
+-- 채팅 읽음상태, 채팅메세지 삭제, 공고 태그삭제, 북마크 삭제, 동료평가 삭제, 신고내역 삭제, 스터디 멤버 삭제 순으로 해야함
+-- 테이블을 ALTER CASCADE 하는 것 보단 트리거를 통해서 삭제
+DROP TRIGGER IF EXISTS `trg_cleanup_on_post_cancel`;
+DELIMITER $$
 
+CREATE TRIGGER `trg_cleanup_on_post_cancel`
+AFTER UPDATE ON `study_post`
+FOR EACH ROW
+BEGIN
+    -- 공고 상태가 'CANCELED'로 변경된 경우에만 로직 수행
+    IF NEW.post_status = 'CANCELED' AND OLD.post_status != 'CANCELED' THEN
+    
+        -- (1) 북마크: 삭제 처리
+        DELETE FROM bookmark 
+        WHERE post_id = NEW.post_id;
+
+        -- (2) 스터디 멤버: 상태를 'CANCELED'로 변경
+        -- 참여 중('ACCEPTED')이거나 대기 중('PENDING')인 멤버만 처리
+        UPDATE study_member
+        SET status = 'CANCELED',
+            status_updated_at = NOW()
+        WHERE post_id = NEW.post_id
+          AND status IN ('PENDING', 'ACCEPTED');
+          
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- 트리거가 감지하고 북마크 삭제 + 멤버 상태 변경을 수행함
+UPDATE study_post 
+SET post_status = 'CANCELED' 
+WHERE post_id = 1;
 ```
+- 공고 삭제 전 스터디 멤버
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_002/%EC%82%AD%EC%A0%9C%20%EC%A0%84%20%EC%8A%A4%ED%84%B0%EB%94%94%20%EB%A9%A4%EB%B2%84.png?raw=true)
 
-![image](https://github.com/user-attachments/assets/52e81b9c-1b90-476a-8cc7-80646a1d90a7)
+- 공고 삭제 후 스터디 멤버 CANCELED 상태 
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_002/%EA%B3%B5%EA%B3%A0%20%EC%82%AD%EC%A0%9C%20%ED%9B%84%20%EC%8A%A4%ED%84%B0%EB%94%94%20%EB%A9%A4%EB%B2%84%20%EC%83%81%ED%83%9C%20canceled.png?raw=true)
 
-![image](https://github.com/user-attachments/assets/6cdbac9e-3874-4734-bd78-97c28114ce1a)
+- 스터디 포스트 CANCELED 변경
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EB%B0%95%EC%9E%AC%ED%95%98/LEADER_002/%EC%8A%A4%ED%84%B0%EB%94%94%20%ED%8F%AC%EC%8A%A4%ED%8A%B8%20canceled%20%EB%B3%80%EA%B2%BD.png?raw=true)
 
 
 </details>
