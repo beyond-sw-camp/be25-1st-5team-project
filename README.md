@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./image/logo.png" width="400" alt="Project Logo" />
+</p>
+
 <h1 align="center">📛 <strong>[FIT-STUDY]</strong></h1>
 <p align="center"><em>나에게 딱 맞는(Fit) 스터디</em></p>
 
