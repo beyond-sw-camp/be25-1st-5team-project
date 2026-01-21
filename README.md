@@ -1506,7 +1506,7 @@ CALL searchStudies(NULL,NULL,'서울',NULL,'RECRUITING');
 </details>
 
 <details>
-<summary>3-3. 스터디 상세 조회 변경경</summary>
+<summary>3-3. 스터디 상세 조회 변경</summary>
 
 ```sql
 DELIMITER $$
@@ -1540,7 +1540,7 @@ CALL viewStudy(1); -- 게시물 아이디 입력
 </details>
 
 <details>
-<summary>3-4. 유저 스터디 참여 상태태 조회</summary>
+<summary>3-4. 유저 스터디 참여 상태 조회</summary>
 
 ```sql
 DELIMITER $$
