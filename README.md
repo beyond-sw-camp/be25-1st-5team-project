@@ -20,7 +20,6 @@
 
 - [👥 팀원 소개](#-팀원-소개)
 - [💡 배경 및 필요성](#-배경-및-필요성)
-- [🔧 주요 기능](#-주요-기능)
 - [🎯 서비스 목표](#-서비스-목표)
 - [👤 핵심 가치 및 전략](#-핵심-가치-및-전략)
 - [🔧 주요 기능](#-주요-기능)
@@ -137,11 +136,10 @@
 ## 📋 요구사항 명세서
 
 ### 🧾 요구사항 명세서
-<p align="center">
-  <img src="./image/requirements.jpg" width="175%" alt="요구사항 명세서" />
-</p>
+<img src="./image/requirements.png" width="175%" alt="요구사항 명세서" />
 
-- [📂 요구사항 명세서 (링크)](https://docs.google.com/spreadsheets/d/1Q1jzi_nl8RFUq_z4TsBLuJ0TAfOchFgY/edit?pli=1&gid=594161354#gid=594161354)</br>
+- [📂 요구사항 명세서 (링크)](https://docs.google.com/spreadsheets/d/1Q1jzi_nl8RFUq_z4TsBLuJ0TAfOchFgY/edit?gid=594161354#gid=594161354)
+
 
 ### ✅ 중점 요구사항
 - 사용자 계정 생성, 로그인, 정보 수정 및 탈퇴 (블랙리스트 대조 포함)
@@ -163,8 +161,8 @@
 - [📌 ERD 구조도 (링크)](https://www.erdcloud.com/d/ZdriHsJtzb2qyHtfq)
 
 ### 📋 테이블 명세서
-<img src="./image/Table_Specification.png" width="1000" alt="Table Specification image" /></br>
-- [📂 테이블 명세서 (링크)](https://docs.google.com/spreadsheets/d/1Q1jzi_nl8RFUq_z4TsBLuJ0TAfOchFgY/edit?gid=724605003#gid=724605003)
+<img src="./image/TableSpecification.png" width="1000" alt="Table Specification image" /></br>
+- [📂 테이블 명세서 (링크)](https://docs.google.com/spreadsheets/d/1Q1jzi_nl8RFUq_z4TsBLuJ0TAfOchFgY/edit?gid=1729984830#gid=1729984830)
 
 ### 📌 Schema DDL
 <details>
@@ -1015,7 +1013,6 @@ CREATE OR REPLACE PROCEDURE updateUserProfile(
     IN p_new_nickname   VARCHAR(50)
 )
 BEGIN
-	 DECLARE v_region_id INT;
     DECLARE v_last_nick_changed_at DATE;
 
     UPDATE `user`
@@ -1173,7 +1170,6 @@ CREATE OR REPLACE PROCEDURE withdrawn(
 )
 BEGIN
 	 DECLARE is_participating TINYINT;
-	 DECLARE withdrawn_user_id INT;
 	 
 	 SELECT
         IF (
@@ -1256,7 +1252,7 @@ VALUES (5, 2, 'SPAM', '욕설', 2);
 </details>
 
 <details>
-<summary>2-3.(사용자, 게시글) 중복 신고 불가능 </summary>
+<summary>2-3. (사용자, 게시글) 중복 신고 불가능 </summary>
 
 ```sql  
 	
@@ -1370,11 +1366,10 @@ FROM chat_read_status
 WHERE message_id = 1 AND is_read = 1;
 ```
 ![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EA%B9%80%EB%8B%A4%EC%86%9C/COMM_001/Read_People.png)
-
 </details>
+
 <details>
 <summary> 2-7. 채팅 전체 조회 </summary>
-
 
 ```sql
 DELIMITER $$
@@ -1509,7 +1504,7 @@ CALL searchStudies(NULL,NULL,'서울',NULL,'RECRUITING');
 </details>
 
 <details>
-<summary>3-3. 회원가입</summary>
+<summary>3-3. 스터디 상세 조회 변경</summary>
 
 ```sql
 DELIMITER $$
@@ -1540,6 +1535,57 @@ CALL viewStudy(1); -- 게시물 아이디 입력
 ![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9D%B4%EC%95%A0%EC%9D%80/USER_012/viewStudy.png?raw=true)
 
 
+</details>
+
+<details>
+<summary>3-4. 유저 스터디 참여 상태 조회</summary>
+
+```sql
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE studyStatusProc(
+    IN p_userId INT,
+    IN p_studyStatus VARCHAR(20)
+)
+BEGIN
+    SELECT
+        sp.post_id,
+        sp.title,
+        sm.status AS '상태',
+        sm.user_id
+    FROM study_member sm
+             JOIN study_post sp ON sp.post_id = sm.post_id
+    WHERE sm.user_id = p_userId
+      AND (
+        p_studyStatus IS NULL
+            OR sm.status = p_studyStatus
+        );
+END$$
+DELIMITER ;
+
+CALL studyStatusProc(10, 'PENDING');
+```
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/USER_013/USER_013_result.png?raw=true)
+
+</details>
+
+<details>
+<summary>3-5. 거절된 스터디 내역 삭제</summary>
+
+```sql
+-- '거절됨' 스터디 내역 삭제
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE deleteStudyRecordProc(
+    IN userId INT,
+    IN postId INT
+)
+BEGIN
+    DELETE FROM study_member
+    WHERE user_id = userId AND post_id = postId AND status = 'REJECTED';
+END$$
+DELIMITER ;
+
+CALL deleteStudyRecordProc(1, 3);
+```
 </details>
 
 ### 👑 4. 스터디 관리 및 리더 기능
@@ -1747,7 +1793,7 @@ DELIMITER ;
 </details>
 
 <details>
-<summary>4-5, 4-6. 참여 요청 관리 (승낙/거절)</summary>
+<summary>4-5. 참여 요청 관리 (승낙/거절)</summary>
 
 ```sql
 -- ===================== LEADER_005, LEADER_006 =====================
@@ -1808,7 +1854,7 @@ CALL sp_update_member_status(2, 5, 6, 'REJECTED');
 </details>
 
 <details>
-<summary>4-7. 팀장 위임</summary>
+<summary>4-6. 팀장 위임</summary>
 
 ```sql
 -- ===================== LEADER_007 =====================
@@ -1892,7 +1938,7 @@ CALL change_withdraw_leader(2, 3, 4);
 </details>
 
 <details>
-<summary>4-8. [트리거] 스터디 완료</summary>
+<summary>4-7. [트리거] 스터디 완료</summary>
 
 ```sql
 -- ===================== LEADER_008 =====================
@@ -1933,7 +1979,7 @@ DELIMITER ;
 </details>
 
 <details>
-<summary>4-9. 스터디 참가 신청</summary>
+<summary>4-8. 스터디 참가 신청</summary>
 
 ```sql
 -- ===================== MEMBER_001 =====================
@@ -1959,60 +2005,9 @@ VALUES (2, 4, 'MEMBER', 'PENDING');
 </details>
 
 
-### 🔖 5. 유저 스터디 현황 조회 및 북마크 관리
+### 🔖 5. 북마크 관리
 <details>
-<summary>5-1. 유저 스터디 참여 현황 조회</summary>
-
-```sql
-DELIMITER $$
-CREATE OR REPLACE PROCEDURE studyStatusProc(
-    IN p_userId INT,
-    IN p_studyStatus VARCHAR(20)
-)
-BEGIN
-    SELECT
-        sp.post_id,
-        sp.title,
-        sm.status AS '상태',
-        sm.user_id
-    FROM study_member sm
-             JOIN study_post sp ON sp.post_id = sm.post_id
-    WHERE sm.user_id = p_userId
-      AND (
-        p_studyStatus IS NULL
-            OR sm.status = p_studyStatus
-        );
-END$$
-DELIMITER ;
-
-CALL studyStatusProc(10, 'PENDING');
-```
-![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/USER_013/USER_013_result.png?raw=true)
-
-</details>
-
-<details>
-<summary>5-2. 거절된 스터디 내역 삭제</summary>
-
-```sql
--- '거절됨' 스터디 내역 삭제
-DELIMITER $$
-CREATE OR REPLACE PROCEDURE deleteStudyRecordProc(
-    IN userId INT,
-    IN postId INT
-)
-BEGIN
-    DELETE FROM study_member
-    WHERE user_id = userId AND post_id = postId AND status = 'REJECTED';
-END$$
-DELIMITER ;
-
-CALL deleteStudyRecordProc(1, 3);
-```
-</details>
-
-<details>
-<summary>5-3. 북마크 등록</summary>
+<summary>5-1. 북마크 등록</summary>
 
 ```sql
 -- 로그인된 아이디와 게시물 아이디를 통해 북마크 등록
@@ -2035,7 +2030,7 @@ CALL createBookmarkProc(1, 5);
 </details>
 
 <details>
-<summary>5-4. 북마크 조회</summary>
+<summary>5-2. 북마크 조회</summary>
 
 ```sql
 -- 로그인된 아이디를 통해 북마크 목록 조회
@@ -2059,7 +2054,7 @@ CALL showBookmarkProc(1);
 </details>
 
 <details>
-<summary>5-5. 북마크 해제</summary>
+<summary>5-3. 북마크 해제</summary>
 
 ```sql
 -- 로그인된 아이디와 게시물 아이디를 통해 북마크 해제
@@ -2357,7 +2352,7 @@ DELIMITER ;
 ![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/test_result/routing_test_query.png?raw=true)
 
 - 쿼리 분기 결과 조회 -> 6032(admin)  hostgroup 10 = master, hostgroup 20 = slave
-![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/test_result/routing_result.png?raw=true)
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/test_result/routingResult.png?raw=true)
 
 </details>
 
@@ -2383,9 +2378,11 @@ DELIMITER ;
 >  
 
 
-### 🌸 김다솜
->  학교에서 배운
->  
+### 🍀 김다솜
+>  이론으로 배운 데이터베이스 개념을 팀 프로젝트에 적용하며 프로시저와 트리거를 작성하여 흐름을 이해할 수 있는 소중한 경험이었습니다.
+>  쿼리를 작성할 때 어떤게 좋은 방식일까라는 고민도 있었지만, 쿼리 흐름을 하나씩 정리하니 점차 이해하고 완성할 수 있었습니다.
+>  GitHub를 처음 사용하면서 여러 오류도 겪었지만 반복적인 사용하다보니 적응할 수 있었습니다.
+>  또한, 팀원들과 함께 문제를 공유하고 해결하는 과정에서 협업의 중요성을 느낄 수 있었으며, 좋은 팀원들과 프로젝트를 마무리할 수 있어 의미 있는 경험이었습니다.
 >  
 
 
@@ -2410,10 +2407,10 @@ DELIMITER ;
 >  처음 진행하는 프로젝트라 어려움도 많았지만 배움도 많았던 경험이었습니다.
 >  데이터베이스 구축의 설계하는 과정을 통해 탄탄한 기본기를 다질 수 있었습니다. 
 >  요구사항 명세서 작성부터 ERD 설계, 테이블 명세서 및 DDL 생성, 그리고 최종 테스트에
->  이르는 DB 설계의 전체 과정을 직접 수행하며 데이터 구조에 대해 이해했습니다.
+>  이르는 DB 설계의 전체 과정을 직접 수행하며 데이터 구조에 대해 이해할 수 있었습니다.
 >
 >  또한, 팀원들과 문서를 동시 편집하는 과정에서 발생한 Git 충돌 문제를 해결하며
->  실무적인 버전 관리와 협업 과정을 배울 수 있었습니다.
+>  파일의 버전 관리와 협업 과정을 간접적으로 배울 수 있었습니다.
 >  이번 경험은 단순한 기술 습득을 넘어, 차기 프로젝트의 완성도를 높이는 데
 >  기여할 중요한 밑거름이 될 것입니다.
 
