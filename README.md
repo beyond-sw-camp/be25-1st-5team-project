@@ -591,14 +591,14 @@ INSERT INTO study_post
 (leader_id, title, content, max_participants, view_count, way, region_id, min_reliability, post_status,
  predict_finish_at, start_at, finish_at)
 VALUES
-(1, '코테(백준) 스터디 모집', '주 3회 문제풀이 + PR 리뷰', 6, 120, 'ONLINE', 9, 30.00, 'RECRUITING', NULL, NULL, NULL),
-(2, 'Spring Boot 백엔드 프로젝트', 'REST API + JWT + 배포까지', 5, 87, 'BOTH', 1, 60.00, 'RECRUITING', NULL, NULL, NULL),
-(5, 'CS 면접 대비 스터디', 'OS/DB/Network 중심', 8, 64, 'OFFLINE', 2, 50.00, 'IN_PROGRESS', NULL, '2026-01-10 10:00:00', NULL),
-(8, 'React 프론트 스터디', 'React + TypeScript 미니 프로젝트', 6, 33, 'ONLINE', 9, 30.00, 'RECRUITING', NULL, NULL, NULL),
-(11, 'Docker + AWS 배포 스터디', 'Docker-compose, AWS 배포 실습', 7, 58, 'BOTH', 3, 55.00, 'IN_PROGRESS', NULL, '2026-01-05 19:00:00', NULL),
-(15, 'Node.js 사이드 프로젝트', 'Node 기반 API/서비스 구현', 6, 41, 'ONLINE', 9, 40.00, 'RECRUITING', NULL, NULL, NULL),
-(17, 'DB 설계/정규화 스터디', 'ERD, 인덱스, 트랜잭션', 8, 75, 'OFFLINE', 4, 40.00, 'RECRUITING', NULL, NULL, NULL),
-(20, '모바일 앱 스터디', 'Kotlin/Swift/Flutter 중 택1', 6, 25, 'BOTH', 1, 30.00, 'RECRUITING', NULL, NULL, NULL);
+(1, '코테(백준) 스터디 모집', '주 3회 문제풀이 + PR 리뷰', 6, 120, 'ONLINE', 9, 3.0, 'RECRUITING', NULL, NULL, NULL),
+(2, 'Spring Boot 백엔드 프로젝트', 'REST API + JWT + 배포까지', 5, 87, 'BOTH', 1, 0.0, 'RECRUITING', NULL, NULL, NULL),
+(5, 'CS 면접 대비 스터디', 'OS/DB/Network 중심', 8, 64, 'OFFLINE', 2, 4.5, 'IN_PROGRESS', NULL, '2026-01-10 10:00:00', NULL),
+(8, 'React 프론트 스터디', 'React + TypeScript 미니 프로젝트', 6, 33, 'ONLINE', 9, 3.4, 'RECRUITING', NULL, NULL, NULL),
+(11, 'Docker + AWS 배포 스터디', 'Docker-compose, AWS 배포 실습', 7, 58, 'BOTH', 3, 3.1, 'IN_PROGRESS', NULL, '2026-01-05 19:00:00', NULL),
+(15, 'Node.js 사이드 프로젝트', 'Node 기반 API/서비스 구현', 6, 41, 'ONLINE', 9, 2.6, 'RECRUITING', NULL, NULL, NULL),
+(17, 'DB 설계/정규화 스터디', 'ERD, 인덱스, 트랜잭션', 8, 75, 'OFFLINE', 4, 4.0, 'RECRUITING', NULL, NULL, NULL),
+(20, '모바일 앱 스터디', 'Kotlin/Swift/Flutter 중 택1', 6, 25, 'BOTH', 1, 3.5, 'RECRUITING', NULL, NULL, NULL);
 ```
 
 ```sql
