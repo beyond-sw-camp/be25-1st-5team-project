@@ -2171,10 +2171,7 @@ BEGIN
     IF p_admin_decision = 'ACCEPT' THEN
         
         -- 3-1. 피신고자(target_id)의 패널티 횟수 +1 증가
-        
-        UPDATE user
-        SET penalty_count = penalty_count + 1
-        WHERE user_id = v_target_user_id;
+        -- '6-6. [트리거] 신고 승인 시 패널티 증가' 를 통해 패널티 횟수 자동으로 증가 
 
         -- 3-2. 허위 공고 신고일 경우(target_post_id가 존재함), 공고 상태를 'CANCELLED'로 변경
   
