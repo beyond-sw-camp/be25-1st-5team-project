@@ -1228,7 +1228,7 @@ INSERT INTO user_report (
 VALUES (10, 9, 'SPAM', '욕설');
 ```
 
-![image](김다솜/USER_008/User_report.png)
+![image](김다솜/USER_013/User_report.png)
 <br>
 </details>
 
@@ -1246,7 +1246,7 @@ VALUES (5, 2, 'SPAM', '욕설', 2);
 ```
 	
 
-![image](김다솜/USER_009/post_report.png)
+![image](김다솜/USER_014/post_report.png)
 
 <br>
 </details>
@@ -1290,7 +1290,7 @@ END$$
 
 DELIMITER ;
 ```
-![image](김다솜/USER_009/Error.png)
+![image](김다솜/USER_014/Error.png)
 </details>
 
 <details>
@@ -1439,7 +1439,7 @@ DELIMITER ;
 CALL recommendStudies(1); -- 유저 아이디 입력
 ```
 
-![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9D%B4%EC%95%A0%EC%9D%80/USER_010/recommendStudies.png?raw=true)
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9D%B4%EC%95%A0%EC%9D%80/USER_015/recommendStudies.png?raw=true)
 
 
 </details>
@@ -1496,9 +1496,9 @@ CALL searchStudies('백엔드','Java','서울','BOTH','RECRUITING');
 CALL searchStudies(NULL,NULL,'서울',NULL,'RECRUITING');
 ```
 
-![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9D%B4%EC%95%A0%EC%9D%80/USER_011/searchStudies.png?raw=true)</br>
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9D%B4%EC%95%A0%EC%9D%80/USER_016/searchStudies.png?raw=true)</br>
 
-![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9D%B4%EC%95%A0%EC%9D%80/USER_011/searchStudies%20result.png?raw=true)
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9D%B4%EC%95%A0%EC%9D%80/USER_016/searchStudies%20result.png?raw=true)
 
 
 </details>
@@ -1532,7 +1532,7 @@ DELIMITER ;
 CALL viewStudy(1); -- 게시물 아이디 입력
 ```
 
-![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9D%B4%EC%95%A0%EC%9D%80/USER_012/viewStudy.png?raw=true)
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9D%B4%EC%95%A0%EC%9D%80/USER_017/viewStudy.png?raw=true)
 
 
 </details>
@@ -1564,7 +1564,7 @@ DELIMITER ;
 
 CALL studyStatusProc(10, 'PENDING');
 ```
-![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/USER_013/USER_013_result.png?raw=true)
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/USER_018/USER_018_result.png?raw=true)
 
 </details>
 
@@ -2049,7 +2049,7 @@ DELIMITER ;
 
 CALL showBookmarkProc(1);
 ```
-![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/USER_016/USER_016_result.png?raw=true)
+![image](https://github.com/beyond-sw-camp/be25-1st-Linker-FitStudy/blob/main/%EC%9C%A4%EC%A0%95%EC%9C%A4/USER_022/USER_022_result.png?raw=true)
 
 </details>
 
@@ -2096,7 +2096,7 @@ JOIN user target ON r.target_id = target.user_id
 ORDER BY r.created_at DESC;
 ```
 
-![신고사항 조회](./이다윗/ADMIN_001/1-1%20신고사항%20조회.png)
+![신고사항 조회](./이다윗/ADMIN_001/6-1%20신고사항%20조회.png)
 </details>
 
 <details> 
@@ -2117,7 +2117,7 @@ JOIN user target ON r.target_id = target.user_id
 WHERE r.state = 'PROCESSING' -- 'ACCEPT', 'REJECT'로 변경 가능
 ORDER BY r.created_at DESC;
 ```
-![신고사항 조회](./이다윗/ADMIN_001/1-2%20신고사항%20필터링%20조회.png) 
+![신고사항 조회](./이다윗/ADMIN_001/6-2%20신고사항%20필터링%20조회.png) 
 </details>
 
 <details> 
@@ -2131,7 +2131,7 @@ SET
     state = 'ACCEPT' -- 또는 'REJECT'
 WHERE report_id = 1; -- 예시 ID
 ```
-![신고사항 조회](./이다윗/ADMIN_001/1-3%20신고사항%20처리상태%20업데이트.png) 
+![신고사항 조회](./이다윗/ADMIN_001/6-3%20신고사항%20처리상태%20업데이트.png) 
 </details>
 
 <details> 
@@ -2187,8 +2187,8 @@ END $$
 
 DELIMITER ;
 ```
-![신고 사항 처리](./이다윗/ADMIN_002/1-2-1.%20유저%20리포트_이전.png) 
-![신고 사항 처리](./이다윗/ADMIN_002/1-1-1.%20유저_리포트_이후.png) 
+![신고 사항 처리](./이다윗/ADMIN_002/6-4-1.%20유저%20리포트_이전.png) 
+![신고 사항 처리](./이다윗/ADMIN_002/6-4-2.%20유저_리포트_이후.png) 
 </details>
 
 <details> 
@@ -2218,10 +2218,10 @@ END $$
 
 DELIMITER ;
 ```
-![신고 사항 처리](./이다윗/ADMIN_002/3-1.%20스터디%20멤버_이전.png)
-![신고 사항 처리](./이다윗/ADMIN_002/3-2.%20스터디%20멤버_이후.png)
-![신고 사항 처리](./이다윗/ADMIN_002/2-1.%20스터디%20포스트_이전.png)
-![신고 사항 처리](./이다윗/ADMIN_002/2-2.%20스터디%20포스트_이후.png)
+![신고 사항 처리](./이다윗/ADMIN_002/6-5-1.%20스터디%20멤버_이전.png)
+![신고 사항 처리](./이다윗/ADMIN_002/6-5-2.%20스터디%20멤버_이후.png)
+![신고 사항 처리](./이다윗/ADMIN_002/6-5-3.%20스터디%20포스트_이전.png)
+![신고 사항 처리](./이다윗/ADMIN_002/6-5-4.%20스터디%20포스트_이후.png)
 </details>
 
 <details>
@@ -2248,8 +2248,8 @@ END //
 
 DELIMITER ;
 ```
-![신고 사항 처리](./이다윗/ADMIN_002/4-1.%20유저_이전.png)
-![신고 사항 처리](./이다윗/ADMIN_002/4-2.%20유저_이후.png) 
+![신고 사항 처리](./이다윗/ADMIN_002/6-6-1.%20유저_이전.png)
+![신고 사항 처리](./이다윗/ADMIN_002/6-6-2.%20유저_이후.png) 
 </details>
 
 <details> 
@@ -2280,10 +2280,10 @@ END //
 
 DELIMITER ;
 ```
-![신고 사항 처리](./이다윗/ADMIN_002/4-1.%20유저_이전.png)
-![신고 사항 처리](./이다윗/ADMIN_002/4-2.%20유저_이후.png) 
-![신고 사항 처리](./이다윗/ADMIN_003/5-1.%20블랙리스트_이전.png)
-![신고 사항 처리](./이다윗/ADMIN_003/5-2.%20블랙리스트_이후.png) 
+![신고 사항 처리](./이다윗/ADMIN_002/6-6-1.%20유저_이전.png)
+![신고 사항 처리](./이다윗/ADMIN_002/6-6-2.%20유저_이후.png) 
+![신고 사항 처리](./이다윗/ADMIN_003/6-7-1.%20블랙리스트_이전.png)
+![신고 사항 처리](./이다윗/ADMIN_003/6-7-2.%20블랙리스트_이후.png) 
 </details>
 
 <details>
@@ -2304,7 +2304,7 @@ BEGIN
     END IF;
 END //
 ```
-![신고 사항 처리](./이다윗/ADMIN_003/6.%20차단된%20블랙리스트.png) 
+![신고 사항 처리](./이다윗/ADMIN_003/6-8.%20차단된%20블랙리스트.png) 
 </details>
 
 <details>
@@ -2332,7 +2332,7 @@ END //
 
 DELIMITER ;
 ```
-![신고 사항 처리](./이다윗/ADMIN_004/7.%20시스템%20통계%20대시보드.png) 
+![신고 사항 처리](./이다윗/ADMIN_004/6-9.%20시스템%20통계%20대시보드.png) 
 </details>
 
 ---
